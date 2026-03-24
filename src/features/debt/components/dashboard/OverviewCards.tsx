@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { TrendingDown, Wallet, Calendar, Flame } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import { EditBudgetDialog } from "./EditBudgetDialog";
 import type { getDebtSummary, compareStrategies } from "../../calculations";
 
 interface OverviewCardsProps {
@@ -49,11 +50,14 @@ export function OverviewCards({ summary, monthlyBudget, comparison }: OverviewCa
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="group relative">
         <CardContent className="pt-6 space-y-2">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <TrendingDown className="h-4 w-4 text-primary" />
-            <span className="text-xs font-medium uppercase tracking-wider">Monthly Budget</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <TrendingDown className="h-4 w-4 text-primary" />
+              <span className="text-xs font-medium uppercase tracking-wider">Monthly Budget</span>
+            </div>
+            <EditBudgetDialog />
           </div>
           <p className="text-2xl font-bold font-mono tabular-nums">
             {formatCurrency(monthlyBudget)}
