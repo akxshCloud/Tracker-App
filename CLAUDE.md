@@ -19,7 +19,7 @@ A native macOS desktop application (Tauri v2 + React + TypeScript) that serves a
 1. **All features go in their own branches** — branch from `main` using `feature/<name>`, `fix/<name>`, or `chore/<name>` naming.
 2. **Never push directly to `main`** — all changes must go through a PR.
 3. **PR and code review must be completed before merging** — use the code-review agent/skill to review all PRs before merge.
-4. **Write meaningful commit messages** — follow conventional commits (`feat:`, `fix:`, `chore:`, `docs:`, `test:`).
+4. **Write meaningful commit messages** — follow conventional commits (`feat:`, `fix:`, `chore:`, `docs:`, `test:`). **Never add "Co-Authored-By: Claude" or any AI attribution to commit messages.**
 5. **Never delete feature branches** — keep all branches as a historical record of development. Do not delete after merge.
 
 ### CLAUDE.md Maintenance
