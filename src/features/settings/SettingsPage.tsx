@@ -14,7 +14,7 @@ import { useDebtStore } from "@/features/debt/store";
 import { exportAllData, importAllData } from "./data-export";
 
 export function SettingsPage() {
-  const { initialize } = useDebtStore();
+  const { initialize, reload } = useDebtStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
@@ -43,12 +43,11 @@ export function SettingsPage() {
     try {
       const text = await file.text();
       const result = await importAllData(text);
+      await reload();
       setStatus({
         type: "success",
-        message: `Imported ${result.debts} debts and ${result.payments} payments. Restart the app to see changes.`,
+        message: `Imported ${result.debts} debts and ${result.payments} payments.`,
       });
-      // Re-initialize store after showing the message
-      setTimeout(() => initialize(), 100);
     } catch (err) {
       console.error(err);
       const msg = err instanceof Error ? err.message : "Unknown error";
