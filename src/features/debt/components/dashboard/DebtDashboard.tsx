@@ -9,7 +9,6 @@ import { WhatIfSimulator } from "./WhatIfSimulator";
 import { InsightsPanel } from "./InsightsPanel";
 import { RecordPaymentDialog } from "./RecordPaymentDialog";
 import { AddDebtDialog } from "./AddDebtDialog";
-import { EditBudgetDialog } from "./EditBudgetDialog";
 
 export function DebtDashboard() {
   const { debts, monthlyBudget } = useDebtStore();
@@ -30,7 +29,6 @@ export function DebtDashboard() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <EditBudgetDialog />
           <AddDebtDialog />
           <RecordPaymentDialog />
         </div>
