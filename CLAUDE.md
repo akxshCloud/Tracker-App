@@ -5,7 +5,9 @@ A native macOS desktop application (Tauri v2 + React + TypeScript) that serves a
 
 ## Current State (Last updated: 2026-03-24)
 - **Debt Dashboard**: Fully working — onboarding wizard, financial engine (avalanche/snowball), charts, strategy comparison
-- **Next up**: Phase 4 — Smart Insights ("what if" scenarios, debt-free countdown, alerts)
+- **Smart Insights**: What-if simulator, debt-free countdown, milestone tracker, interest burn warnings
+- **Debt Management**: Record payments, add debts, edit budget — all from dashboard
+- **Next up**: Phase 5 — App polish (nav sidebar, settings, data export, app shell)
 
 ## Tech Stack
 - **Desktop Shell**: Tauri v2 (Rust-based, native macOS webview)
