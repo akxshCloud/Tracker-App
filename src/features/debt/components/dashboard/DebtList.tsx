@@ -131,7 +131,7 @@ export function DebtList() {
       )}
 
       {/* Delete confirmation */}
-      <Dialog open={!!deletingDebt} onOpenChange={(open) => { if (!open) setDeletingDebt(null); }}>
+      <Dialog open={!!deletingDebt} onOpenChange={(open) => { if (!open && !isDeleting) setDeletingDebt(null); }}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle className="text-destructive">Delete Debt</DialogTitle>

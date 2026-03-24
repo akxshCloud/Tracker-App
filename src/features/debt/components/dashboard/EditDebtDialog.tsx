@@ -149,6 +149,7 @@ export function EditDebtDialog({ debt, open, onOpenChange }: EditDebtDialogProps
                   onChange={(e) => setForm({ ...form, minimum_payment: parseFloat(e.target.value) || 0 })}
                 />
               </div>
+              {errors.minimum_payment && <p className="text-xs text-destructive">{errors.minimum_payment}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-due">Due day</Label>
@@ -162,6 +163,7 @@ export function EditDebtDialog({ debt, open, onOpenChange }: EditDebtDialogProps
                 value={form.due_day ?? ""}
                 onChange={(e) => setForm({ ...form, due_day: e.target.value ? parseInt(e.target.value) : null })}
               />
+              {errors.due_day && <p className="text-xs text-destructive">{errors.due_day}</p>}
             </div>
           </div>
 
