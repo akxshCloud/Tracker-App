@@ -51,6 +51,7 @@ export async function updateDebt(id: number, data: Partial<DebtFormData>): Promi
 }
 
 export async function deleteDebt(id: number): Promise<void> {
+  await execute("DELETE FROM payments WHERE debt_id = ?", [id]);
   await execute("DELETE FROM debts WHERE id = ?", [id]);
 }
 

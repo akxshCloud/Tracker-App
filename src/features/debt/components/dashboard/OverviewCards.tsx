@@ -58,8 +58,10 @@ export function OverviewCards({ summary, monthlyBudget, comparison }: OverviewCa
           <p className="text-2xl font-bold font-mono tabular-nums">
             {formatCurrency(monthlyBudget)}
           </p>
-          <p className="text-xs text-muted-foreground">
-            {formatCurrency(monthlyBudget - summary.monthlyMinimums)} extra / mo
+          <p className={`text-xs ${monthlyBudget < summary.monthlyMinimums ? "text-destructive" : "text-muted-foreground"}`}>
+            {monthlyBudget >= summary.monthlyMinimums
+              ? `${formatCurrency(monthlyBudget - summary.monthlyMinimums)} extra / mo`
+              : `${formatCurrency(summary.monthlyMinimums - monthlyBudget)} short of minimums`}
           </p>
         </CardContent>
       </Card>

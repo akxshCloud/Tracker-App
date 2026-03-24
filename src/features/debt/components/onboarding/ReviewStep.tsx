@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,8 +15,8 @@ interface ReviewStepProps {
 
 export function ReviewStep({ onBack }: ReviewStepProps) {
   const { debts, monthlyBudget, completeOnboarding } = useDebtStore();
-  const summary = getDebtSummary(debts);
-  const comparison = compareStrategies(debts, monthlyBudget);
+  const summary = useMemo(() => getDebtSummary(debts), [debts]);
+  const comparison = useMemo(() => compareStrategies(debts, monthlyBudget), [debts, monthlyBudget]);
 
   async function handleFinish() {
     await completeOnboarding();

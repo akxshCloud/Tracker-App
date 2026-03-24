@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -19,6 +19,7 @@ interface PayoffChartProps {
 }
 
 export function PayoffChart({ comparison }: PayoffChartProps) {
+  const gradientId = useId();
   const [strategy, setStrategy] = useState<PayoffStrategy>("avalanche");
   const projection = strategy === "avalanche" ? comparison.avalanche : comparison.snowball;
 
@@ -49,7 +50,7 @@ export function PayoffChart({ comparison }: PayoffChartProps) {
           <ResponsiveContainer width="100%" height={280}>
             <AreaChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
               <defs>
-                <linearGradient id="balanceGradient" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="oklch(0.75 0.18 155)" stopOpacity={0.3} />
                   <stop offset="95%" stopColor="oklch(0.75 0.18 155)" stopOpacity={0} />
                 </linearGradient>
@@ -97,7 +98,7 @@ export function PayoffChart({ comparison }: PayoffChartProps) {
                 dataKey="balance"
                 stroke="oklch(0.75 0.18 155)"
                 strokeWidth={2}
-                fill="url(#balanceGradient)"
+                fill={`url(#${gradientId})`}
               />
             </AreaChart>
           </ResponsiveContainer>

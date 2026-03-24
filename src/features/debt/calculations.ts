@@ -23,12 +23,17 @@ function sortDebts(debts: Debt[], strategy: PayoffStrategy): Debt[] {
   return sorted;
 }
 
+function currentDateStr(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
 /**
  * Generate a full payoff projection given debts, a monthly budget, and a strategy.
  *
  * How it works:
- * 1. Each month, accrue interest on each remaining debt
- * 2. Pay minimum payments on all debts
+ * 1. Each month, accrue interest on each remaining debt (tracked per-debt)
+ * 2. Pay minimum payments on all debts (proportionally if budget is insufficient)
  * 3. Remaining budget goes to the priority debt (per strategy)
  * 4. When a debt is paid off, its minimum rolls into the next priority debt
  * 5. Continue until all debts are at £0 or we hit a safety cap (600 months / 50 years)
@@ -44,7 +49,7 @@ export function calculatePayoffProjection(
       months: [],
       totalInterestPaid: 0,
       totalPaid: 0,
-      payoffDate: new Date().toISOString().slice(0, 7),
+      payoffDate: currentDateStr(),
       monthsToPayoff: 0,
     };
   }
@@ -72,31 +77,55 @@ export function calculatePayoffProjection(
     if (totalRemaining <= 0.01) break;
 
     let budgetRemaining = monthlyBudget;
-    const monthDebts: PayoffMonth["debts"] = [];
+
+    // Track interest accrued per debt this month (for accurate recording)
+    const interestAccrued = new Map<number, number>();
+    // Track balance before this month's operations (for recording)
+    const startBalances = new Map<number, number>();
+
+    // Snapshot start-of-month balances
+    for (const debt of sortedDebts) {
+      startBalances.set(debt.id, balances.get(debt.id) ?? 0);
+    }
 
     // Step 1: Accrue interest
     for (const debt of sortedDebts) {
       const balance = balances.get(debt.id) ?? 0;
-      if (balance <= 0) continue;
+      if (balance <= 0) {
+        interestAccrued.set(debt.id, 0);
+        continue;
+      }
       const interest = monthlyInterest(balance, debt.interest_rate);
+      interestAccrued.set(debt.id, interest);
       balances.set(debt.id, balance + interest);
     }
 
-    // Step 2: Pay minimums on all active debts
+    // Step 2: Pay minimums — proportionally if budget is insufficient
+    const totalMinimumsNeeded = sortedDebts.reduce((sum, debt) => {
+      const balance = balances.get(debt.id) ?? 0;
+      if (balance <= 0) return sum;
+      return sum + Math.min(debt.minimum_payment, balance);
+    }, 0);
+
+    const minimumRatio = totalMinimumsNeeded > 0
+      ? Math.min(1, budgetRemaining / totalMinimumsNeeded)
+      : 1;
+
     for (const debt of sortedDebts) {
       const balance = balances.get(debt.id) ?? 0;
       if (balance <= 0) continue;
-      const minPayment = Math.min(debt.minimum_payment, balance);
-      budgetRemaining -= minPayment;
-      balances.set(debt.id, balance - minPayment);
+      const idealMinimum = Math.min(debt.minimum_payment, balance);
+      const actualMinimum = idealMinimum * minimumRatio;
+      budgetRemaining -= actualMinimum;
+      balances.set(debt.id, balance - actualMinimum);
     }
 
-    // If budget can't cover minimums, we still track but flag it
-    if (budgetRemaining < 0) budgetRemaining = 0;
+    // Clamp any floating point dust
+    if (budgetRemaining < 0.01) budgetRemaining = 0;
 
     // Step 3: Extra payment to priority debt (per strategy order)
     for (const debt of sortedDebts) {
-      if (budgetRemaining <= 0) break;
+      if (budgetRemaining <= 0.01) break;
       const balance = balances.get(debt.id) ?? 0;
       if (balance <= 0) continue;
       const extra = Math.min(budgetRemaining, balance);
@@ -104,17 +133,16 @@ export function calculatePayoffProjection(
       budgetRemaining -= extra;
     }
 
-    // Record this month's state
+    // Record this month's state using actual tracked values
     let monthTotalPayment = 0;
     let monthTotalInterest = 0;
+    const monthDebts: PayoffMonth["debts"] = [];
 
     for (const debt of sortedDebts) {
-      const startOfMonth = months.length > 0
-        ? months[months.length - 1].debts.find((d) => d.id === debt.id)?.balance ?? 0
-        : debt.current_balance;
-      const currentBalance = balances.get(debt.id) ?? 0;
-      const interest = monthlyInterest(startOfMonth, debt.interest_rate);
-      const payment = Math.max(0, startOfMonth + interest - currentBalance);
+      const startBalance = startBalances.get(debt.id) ?? 0;
+      const interest = interestAccrued.get(debt.id) ?? 0;
+      const currentBalance = Math.max(0, balances.get(debt.id) ?? 0);
+      const payment = Math.max(0, startBalance + interest - currentBalance);
       const principalPaid = payment - interest;
 
       monthTotalPayment += payment;
@@ -125,7 +153,7 @@ export function calculatePayoffProjection(
       monthDebts.push({
         id: debt.id,
         name: debt.name,
-        balance: Math.max(0, currentBalance),
+        balance: currentBalance,
         payment: Math.round(payment * 100) / 100,
         interest: Math.round(interest * 100) / 100,
         principalPaid: Math.round(principalPaid * 100) / 100,
@@ -149,14 +177,9 @@ export function calculatePayoffProjection(
     months,
     totalInterestPaid: Math.round(totalInterestPaid * 100) / 100,
     totalPaid: Math.round(totalPaid * 100) / 100,
-    payoffDate: lastMonth?.date ?? dateStr(),
+    payoffDate: lastMonth?.date ?? currentDateStr(),
     monthsToPayoff: months.length,
   };
-}
-
-function dateStr(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 }
 
 /**
