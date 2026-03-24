@@ -3,6 +3,10 @@
 ## Project Overview
 A native macOS desktop application (Tauri v2 + React + TypeScript) that serves as a personal life tracker / "second brain" — starting with a debt management dashboard. Built for a single user, no Apple Developer account needed.
 
+## Current State (Last updated: 2026-03-24)
+- **Debt Dashboard**: Fully working — onboarding wizard, financial engine (avalanche/snowball), charts, strategy comparison
+- **Next up**: Phase 4 — Smart Insights ("what if" scenarios, debt-free countdown, alerts)
+
 ## Tech Stack
 - **Desktop Shell**: Tauri v2 (Rust-based, native macOS webview)
 - **Frontend**: React 18+ with TypeScript
