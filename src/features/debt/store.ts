@@ -25,6 +25,9 @@ interface DebtStore {
   // Settings
   setMonthlyBudget: (amount: number) => Promise<void>;
   completeOnboarding: () => Promise<void>;
+
+  // Reload data without showing loading spinner (for import)
+  reload: () => Promise<void>;
 }
 
 export const useDebtStore = create<DebtStore>((set, get) => ({
@@ -91,5 +94,14 @@ export const useDebtStore = create<DebtStore>((set, get) => ({
     await get().loadDebts();
     await get().loadPayments();
     set({ hasCompletedOnboarding: true });
+  },
+
+  reload: async () => {
+    const onboarded = await db.hasCompletedOnboarding();
+    const budgetStr = await db.getSetting("monthly_budget");
+    const budget = budgetStr ? parseFloat(budgetStr) : 0;
+    const debts = await db.getAllDebts();
+    const payments = await db.getAllPayments();
+    set({ debts, payments, monthlyBudget: budget, hasCompletedOnboarding: onboarded });
   },
 }));
