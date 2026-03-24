@@ -20,12 +20,17 @@ import { PoundSterling, Plus } from "lucide-react";
 import { useDebtStore } from "../../store";
 import { formatCurrency } from "@/lib/utils";
 
+function todayLocal(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 export function RecordPaymentDialog() {
   const { debts, recordPayment } = useDebtStore();
   const [open, setOpen] = useState(false);
   const [debtId, setDebtId] = useState<string>("");
   const [amount, setAmount] = useState<number>(0);
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [date, setDate] = useState(todayLocal());
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
 
@@ -35,15 +40,20 @@ export function RecordPaymentDialog() {
     if (!debtId) { setError("Select a debt"); return; }
     if (amount <= 0) { setError("Enter an amount"); return; }
 
-    await recordPayment(Number(debtId), amount, date, notes || undefined);
-    setOpen(false);
-    resetForm();
+    try {
+      await recordPayment(Number(debtId), amount, date, notes || undefined);
+      setOpen(false);
+      resetForm();
+    } catch (err) {
+      setError("Failed to record payment. Please try again.");
+      console.error(err);
+    }
   }
 
   function resetForm() {
     setDebtId("");
     setAmount(0);
-    setDate(new Date().toISOString().split("T")[0]);
+    setDate(todayLocal());
     setNotes("");
     setError("");
   }

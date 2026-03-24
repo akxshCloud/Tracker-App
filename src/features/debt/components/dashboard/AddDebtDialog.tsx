@@ -40,10 +40,15 @@ export function AddDebtDialog() {
 
   async function handleSubmit() {
     if (!validate()) return;
-    await addDebt(form);
-    setOpen(false);
-    setForm({ ...emptyDebt });
-    setErrors({});
+    try {
+      await addDebt(form);
+      setOpen(false);
+      setForm({ ...emptyDebt });
+      setErrors({});
+    } catch (err) {
+      setErrors({ submit: "Failed to add debt. Please try again." });
+      console.error(err);
+    }
   }
 
   return (
@@ -98,7 +103,7 @@ export function AddDebtDialog() {
                   min="0"
                   className="pl-9 font-mono"
                   placeholder="0.00"
-                  value={form.current_balance || ""}
+                  value={form.current_balance}
                   onChange={(e) => setForm({ ...form, current_balance: parseFloat(e.target.value) || 0 })}
                 />
               </div>
@@ -113,7 +118,7 @@ export function AddDebtDialog() {
                 min="0"
                 className="font-mono"
                 placeholder="0.0"
-                value={form.interest_rate || ""}
+                value={form.interest_rate}
                 onChange={(e) => setForm({ ...form, interest_rate: parseFloat(e.target.value) || 0 })}
               />
             </div>
@@ -131,7 +136,7 @@ export function AddDebtDialog() {
                   min="0"
                   className="pl-9 font-mono"
                   placeholder="0.00"
-                  value={form.minimum_payment || ""}
+                  value={form.minimum_payment}
                   onChange={(e) => setForm({ ...form, minimum_payment: parseFloat(e.target.value) || 0 })}
                 />
               </div>

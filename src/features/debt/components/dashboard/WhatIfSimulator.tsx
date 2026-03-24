@@ -23,10 +23,10 @@ export function WhatIfSimulator() {
     [debts, monthlyBudget, extraPayment],
   );
 
-  const monthsSaved = currentProjection.avalanche.monthsToPayoff - whatIfProjection.avalanche.monthsToPayoff;
-  const interestSaved = Math.round(
+  const monthsSaved = Math.max(0, currentProjection.avalanche.monthsToPayoff - whatIfProjection.avalanche.monthsToPayoff);
+  const interestSaved = Math.max(0, Math.round(
     (currentProjection.avalanche.totalInterestPaid - whatIfProjection.avalanche.totalInterestPaid) * 100,
-  ) / 100;
+  ) / 100);
 
   const whatIfPayoffDate = whatIfProjection.avalanche.payoffDate
     ? new Date(whatIfProjection.avalanche.payoffDate + "-01").toLocaleDateString("en-GB", {

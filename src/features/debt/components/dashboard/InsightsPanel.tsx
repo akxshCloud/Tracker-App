@@ -36,7 +36,7 @@ export function InsightsPanel() {
 
   const nextMilestone = milestones.find((m) => summary.percentPaid < m.threshold);
   const percentToNextMilestone = nextMilestone
-    ? ((summary.percentPaid / nextMilestone.threshold) * 100)
+    ? Math.min(100, (summary.percentPaid / nextMilestone.threshold) * 100)
     : 100;
 
   // Monthly interest burn rate

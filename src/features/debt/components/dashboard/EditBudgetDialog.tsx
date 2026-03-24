@@ -21,8 +21,12 @@ export function EditBudgetDialog() {
   const minRequired = minimumBudgetRequired(debts);
 
   async function handleSave() {
-    await setMonthlyBudget(budget);
-    setOpen(false);
+    try {
+      await setMonthlyBudget(budget);
+      setOpen(false);
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   return (
@@ -54,6 +58,11 @@ export function EditBudgetDialog() {
             <p className="text-xs text-muted-foreground">
               Minimum payments total {formatCurrency(minRequired)}/mo
             </p>
+            {budget > 0 && budget < minRequired && (
+              <p className="text-xs text-destructive">
+                This is below your total minimum payments. You risk late fees and credit score damage.
+              </p>
+            )}
           </div>
           <div className="flex justify-end gap-2">
             <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
