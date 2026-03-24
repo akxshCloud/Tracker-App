@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useRouter, type Page } from "@/lib/router";
 import {
   CreditCard,
+  CalendarClock,
   History,
   Settings,
   LayoutDashboard,
@@ -21,6 +22,7 @@ interface NavItem {
 
 const mainNav: NavItem[] = [
   { page: "debt", label: "Debt Tracker", Icon: CreditCard },
+  { page: "schedule", label: "Payment Plan", Icon: CalendarClock },
   { page: "payments", label: "Payment History", Icon: History },
 ];
 

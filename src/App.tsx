@@ -4,6 +4,7 @@ import { useDebtStore } from "@/features/debt/store";
 import { useRouter } from "@/lib/router";
 import { OnboardingWizard } from "@/features/debt/components/onboarding/OnboardingWizard";
 import { DebtDashboard } from "@/features/debt/components/dashboard/DebtDashboard";
+import { PaymentSchedule } from "@/features/debt/components/PaymentSchedule";
 import { PaymentHistory } from "@/features/debt/components/PaymentHistory";
 import { SettingsPage } from "@/features/settings/SettingsPage";
 import { Sidebar } from "@/components/Sidebar";
@@ -49,6 +50,7 @@ function App() {
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
             >
               {page === "debt" && <DebtDashboard />}
+              {page === "schedule" && <PaymentSchedule />}
               {page === "payments" && <PaymentHistory />}
               {page === "settings" && <SettingsPage />}
             </motion.div>
