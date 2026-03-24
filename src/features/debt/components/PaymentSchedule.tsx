@@ -2,9 +2,9 @@ import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarClock, ArrowRight, CheckCircle2 } from "lucide-react";
+import { CalendarClock, ArrowRight, CheckCircle2, AlertTriangle } from "lucide-react";
 import { useDebtStore } from "../store";
-import { calculatePayoffProjection } from "../calculations";
+import { calculatePayoffProjection, minimumBudgetRequired } from "../calculations";
 import type { PayoffStrategy } from "../types";
 import { formatCurrency } from "@/lib/utils";
 
@@ -26,6 +26,8 @@ export function PaymentSchedule() {
     () => calculatePayoffProjection(debts, monthlyBudget, strategy),
     [debts, monthlyBudget, strategy],
   );
+
+  const minBudget = useMemo(() => minimumBudgetRequired(debts), [debts]);
 
   // Show first 12 months or until payoff
   const monthsToShow = Math.min(projection.months.length, 12);
@@ -81,6 +83,20 @@ export function PaymentSchedule() {
           </div>
         </div>
       </motion.div>
+
+      {/* Budget warning */}
+      {monthlyBudget < minBudget && (
+        <motion.div variants={fadeIn} className="flex items-start gap-3 rounded-2xl bg-destructive/5 border border-destructive/15 p-5">
+          <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-destructive">Budget below minimum payments</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Your budget of {formatCurrency(monthlyBudget)}/mo doesn't cover the {formatCurrency(minBudget)}/mo
+              in minimum payments. The schedule below may not be achievable — increase your budget to see an accurate plan.
+            </p>
+          </div>
+        </motion.div>
+      )}
 
       {/* Monthly breakdown */}
       {visibleMonths.length === 0 ? (
