@@ -36,7 +36,11 @@ export async function updateDebt(id: number, data: Partial<DebtFormData>): Promi
 
   if (data.name !== undefined) { fields.push("name = ?"); values.push(data.name); }
   if (data.category !== undefined) { fields.push("category = ?"); values.push(data.category); }
-  if (data.current_balance !== undefined) { fields.push("current_balance = ?"); values.push(data.current_balance); }
+  if (data.current_balance !== undefined) {
+    fields.push("current_balance = ?"); values.push(data.current_balance);
+    // Keep original_balance >= current_balance so progress tracking stays valid
+    fields.push("original_balance = MAX(original_balance, ?)"); values.push(data.current_balance);
+  }
   if (data.interest_rate !== undefined) { fields.push("interest_rate = ?"); values.push(data.interest_rate); }
   if (data.minimum_payment !== undefined) { fields.push("minimum_payment = ?"); values.push(data.minimum_payment); }
   if (data.due_day !== undefined) { fields.push("due_day = ?"); values.push(data.due_day); }

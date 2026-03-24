@@ -51,6 +51,9 @@ export function EditDebtDialog({ debt, open, onOpenChange }: EditDebtDialogProps
     const errs: Record<string, string> = {};
     if (!form.name.trim()) errs.name = "Name is required";
     if (form.current_balance < 0) errs.current_balance = "Balance can't be negative";
+    if (form.interest_rate < 0) errs.interest_rate = "APR can't be negative";
+    if (form.minimum_payment < 0) errs.minimum_payment = "Can't be negative";
+    if (form.due_day !== null && (form.due_day < 1 || form.due_day > 31)) errs.due_day = "Must be 1–31";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   }
@@ -127,6 +130,7 @@ export function EditDebtDialog({ debt, open, onOpenChange }: EditDebtDialogProps
                 value={form.interest_rate}
                 onChange={(e) => setForm({ ...form, interest_rate: parseFloat(e.target.value) || 0 })}
               />
+              {errors.interest_rate && <p className="text-xs text-destructive">{errors.interest_rate}</p>}
             </div>
           </div>
 

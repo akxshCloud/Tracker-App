@@ -18,16 +18,23 @@ export function DebtList() {
   const { debts, removeDebt } = useDebtStore();
   const [editingDebt, setEditingDebt] = useState<Debt | null>(null);
   const [deletingDebt, setDeletingDebt] = useState<Debt | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   if (debts.length === 0) return null;
 
   async function handleDelete() {
-    if (!deletingDebt) return;
+    if (!deletingDebt || isDeleting) return;
+    setIsDeleting(true);
+    setDeleteError("");
     try {
       await removeDebt(deletingDebt.id);
       setDeletingDebt(null);
     } catch (err) {
       console.error(err);
+      setDeleteError("Failed to delete. Please try again.");
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -133,9 +140,12 @@ export function DebtList() {
             Are you sure you want to delete <span className="font-semibold text-foreground">{deletingDebt?.name}</span>?
             This will also remove all associated payment records. This cannot be undone.
           </p>
+          {deleteError && <p className="text-xs text-destructive">{deleteError}</p>}
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="ghost" onClick={() => setDeletingDebt(null)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+            <Button variant="ghost" onClick={() => setDeletingDebt(null)} disabled={isDeleting}>Cancel</Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
+              {isDeleting ? "Deleting..." : "Delete"}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
