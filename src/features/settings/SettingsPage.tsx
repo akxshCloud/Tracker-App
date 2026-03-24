@@ -43,11 +43,12 @@ export function SettingsPage() {
     try {
       const text = await file.text();
       const result = await importAllData(text);
-      await initialize();
       setStatus({
         type: "success",
-        message: `Imported ${result.debts} debts and ${result.payments} payments.`,
+        message: `Imported ${result.debts} debts and ${result.payments} payments. Restart the app to see changes.`,
       });
+      // Re-initialize store after showing the message
+      setTimeout(() => initialize(), 100);
     } catch (err) {
       console.error(err);
       const msg = err instanceof Error ? err.message : "Unknown error";
