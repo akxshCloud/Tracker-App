@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Target, Flame, Trophy, AlertTriangle } from "lucide-react";
@@ -16,22 +15,20 @@ export function InsightsPanel() {
   );
 
   const totalPaidSoFar = payments.reduce((sum, p) => sum + p.amount, 0);
-  const payoffDate = comparison.avalanche.payoffDate;
   const monthsLeft = comparison.avalanche.monthsToPayoff;
 
-  // Calculate countdown
   const now = new Date();
+  const payoffDate = comparison.avalanche.payoffDate;
   const targetDate = payoffDate ? new Date(payoffDate + "-01") : null;
   const daysLeft = targetDate
     ? Math.max(0, Math.ceil((targetDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
     : 0;
 
-  // Milestones
   const milestones = [
-    { threshold: 25, label: "25% paid off", icon: "🎯" },
-    { threshold: 50, label: "Halfway there", icon: "🔥" },
-    { threshold: 75, label: "75% done", icon: "💪" },
-    { threshold: 100, label: "Debt free!", icon: "🏆" },
+    { threshold: 25, label: "25% done" },
+    { threshold: 50, label: "Halfway" },
+    { threshold: 75, label: "75% done" },
+    { threshold: 100, label: "Debt free!" },
   ];
 
   const nextMilestone = milestones.find((m) => summary.percentPaid < m.threshold);
@@ -39,101 +36,94 @@ export function InsightsPanel() {
     ? Math.min(100, (summary.percentPaid / nextMilestone.threshold) * 100)
     : 100;
 
-  // Monthly interest burn rate
   const yearlyInterestBurn = summary.monthlyInterestAccruing * 12;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg flex items-center gap-2">
-          <Target className="h-5 w-5" />
-          Insights
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-5">
-        {/* Debt-free countdown */}
-        <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 text-center space-y-2">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider">Debt-free countdown</p>
-          <div className="flex items-baseline justify-center gap-3">
-            <div>
-              <span className="text-3xl font-bold font-mono tabular-nums">{monthsLeft}</span>
-              <span className="text-sm text-muted-foreground ml-1">months</span>
-            </div>
-            <span className="text-muted-foreground">·</span>
-            <div>
-              <span className="text-3xl font-bold font-mono tabular-nums">{daysLeft}</span>
-              <span className="text-sm text-muted-foreground ml-1">days</span>
-            </div>
+    <div className="card-elevated rounded-2xl p-6 space-y-5 flex flex-col">
+      <div className="flex items-center gap-2">
+        <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">
+          <Target className="h-3.5 w-3.5 text-primary" />
+        </div>
+        <div>
+          <h3 className="text-sm font-semibold">Insights</h3>
+          <p className="text-xs text-muted-foreground">Key metrics at a glance</p>
+        </div>
+      </div>
+
+      {/* Countdown */}
+      <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 text-center space-y-1">
+        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">Debt-free countdown</p>
+        <div className="flex items-baseline justify-center gap-4">
+          <div>
+            <span className="text-3xl font-bold font-mono tabular-nums">{monthsLeft}</span>
+            <span className="text-xs text-muted-foreground ml-1">mo</span>
+          </div>
+          <span className="text-border">·</span>
+          <div>
+            <span className="text-3xl font-bold font-mono tabular-nums">{daysLeft}</span>
+            <span className="text-xs text-muted-foreground ml-1">days</span>
           </div>
         </div>
+      </div>
 
+      <div className="flex-1 space-y-4">
         {/* Next milestone */}
         {nextMilestone && (
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="flex items-center gap-2">
-                <Trophy className="h-4 w-4 text-primary" />
-                Next milestone: {nextMilestone.label}
+            <div className="flex items-center justify-between text-xs">
+              <span className="flex items-center gap-1.5">
+                <Trophy className="h-3 w-3 text-primary" />
+                {nextMilestone.label}
               </span>
               <span className="font-mono tabular-nums text-muted-foreground">
-                {Math.round(summary.percentPaid)}%/{nextMilestone.threshold}%
+                {Math.round(summary.percentPaid)}%
               </span>
             </div>
-            <Progress value={percentToNextMilestone} className="h-2" />
+            <Progress value={percentToNextMilestone} className="h-1.5 bg-white/5" />
           </div>
         )}
 
-        <Separator />
+        <Separator className="bg-border/30" />
 
-        {/* Key stats */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Total paid so far</span>
-            <span className="font-mono tabular-nums font-medium">
-              {formatCurrency(totalPaidSoFar)}
-            </span>
+        {/* Stats */}
+        <div className="space-y-2.5 text-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Total paid</span>
+            <span className="font-mono tabular-nums font-semibold">{formatCurrency(totalPaidSoFar)}</span>
           </div>
-
-          <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Payments made</span>
-            <span className="font-mono tabular-nums font-medium">
-              {payments.length}
-            </span>
+            <span className="font-mono tabular-nums font-semibold">{payments.length}</span>
           </div>
-
-          {summary.monthlyInterestAccruing > 0 && (
-            <>
-              <Separator />
-              <div className="flex items-start gap-3 text-sm">
-                <Flame className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-medium text-destructive">
-                    Interest is costing you {formatCurrency(yearlyInterestBurn)}/year
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    That's {formatCurrency(summary.monthlyInterestAccruing)} every month being added to your balance.
-                    {comparison.interestSaved > 0 && (
-                      <> Using avalanche saves you {formatCurrency(comparison.interestSaved)} vs snowball.</>
-                    )}
-                  </p>
-                </div>
-              </div>
-            </>
-          )}
-
-          {monthlyBudget < summary.monthlyMinimums && (
-            <div className="flex items-start gap-3 text-sm">
-              <AlertTriangle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium text-destructive">Budget below minimums</p>
-                <p className="text-xs text-muted-foreground">
-                  You need at least {formatCurrency(summary.monthlyMinimums)}/mo to cover all minimum payments.
-                </p>
-              </div>
-            </div>
-          )}
         </div>
-      </CardContent>
-    </Card>
+
+        {/* Warnings */}
+        {summary.monthlyInterestAccruing > 0 && (
+          <div className="flex items-start gap-2.5 rounded-lg bg-destructive/5 border border-destructive/10 p-3">
+            <Flame className="h-3.5 w-3.5 text-destructive flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-xs font-semibold text-destructive">
+                {formatCurrency(yearlyInterestBurn)}/yr in interest
+              </p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">
+                {formatCurrency(summary.monthlyInterestAccruing)}/mo added to your balance
+              </p>
+            </div>
+          </div>
+        )}
+
+        {monthlyBudget < summary.monthlyMinimums && (
+          <div className="flex items-start gap-2.5 rounded-lg bg-destructive/5 border border-destructive/10 p-3">
+            <AlertTriangle className="h-3.5 w-3.5 text-destructive flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-xs font-semibold text-destructive">Below minimums</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">
+                Need {formatCurrency(summary.monthlyMinimums)}/mo minimum
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

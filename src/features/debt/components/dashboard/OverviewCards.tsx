@@ -1,4 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { TrendingDown, Wallet, Calendar, Flame } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
@@ -14,76 +13,81 @@ interface OverviewCardsProps {
 export function OverviewCards({ summary, monthlyBudget, comparison }: OverviewCardsProps) {
   const payoffDate = comparison.avalanche.payoffDate;
   const payoffDateFormatted = payoffDate
-    ? new Date(payoffDate + "-01").toLocaleDateString("en-GB", { month: "long", year: "numeric" })
-    : "N/A";
+    ? new Date(payoffDate + "-01").toLocaleDateString("en-GB", { month: "short", year: "numeric" })
+    : "—";
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <Card>
-        <CardContent className="pt-6 space-y-2">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Wallet className="h-4 w-4" />
-            <span className="text-xs font-medium uppercase tracking-wider">Total Debt</span>
+    <div className="grid grid-cols-4 gap-4">
+      {/* Hero — Total Debt */}
+      <div className="col-span-2 card-hero rounded-2xl p-6 space-y-3">
+        <div className="flex items-center gap-2 text-primary/70">
+          <Wallet className="h-4 w-4" />
+          <span className="text-xs font-semibold uppercase tracking-widest">Total Remaining</span>
+        </div>
+        <p className="text-5xl font-bold font-mono tabular-nums tracking-tight">
+          {formatCurrency(summary.totalDebt)}
+        </p>
+        <div className="space-y-2">
+          <Progress value={summary.percentPaid} className="h-1.5 bg-white/5" />
+          <div className="flex justify-between text-xs">
+            <span className="text-muted-foreground">{summary.percentPaid}% paid off</span>
+            <span className="text-muted-foreground">
+              {formatCurrency(summary.totalPaid)} of {formatCurrency(summary.totalOriginal)}
+            </span>
           </div>
-          <p className="text-2xl font-bold font-mono tabular-nums">
-            {formatCurrency(summary.totalDebt)}
-          </p>
-          <Progress value={summary.percentPaid} className="h-1.5" />
-          <p className="text-xs text-muted-foreground">
-            {summary.percentPaid}% paid off
-          </p>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      <Card>
-        <CardContent className="pt-6 space-y-2">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Flame className="h-4 w-4 text-destructive" />
-            <span className="text-xs font-medium uppercase tracking-wider">Interest / Month</span>
+      {/* Right column — stacked stats */}
+      <div className="col-span-2 grid grid-rows-2 gap-4">
+        <div className="grid grid-cols-2 gap-4">
+          {/* Interest burn */}
+          <div className="card-elevated rounded-xl p-4 space-y-1.5">
+            <div className="flex items-center gap-1.5">
+              <Flame className="h-3.5 w-3.5 text-destructive/70" />
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Interest / mo</span>
+            </div>
+            <p className="text-xl font-bold font-mono tabular-nums text-destructive">
+              {formatCurrency(summary.monthlyInterestAccruing)}
+            </p>
           </div>
-          <p className="text-2xl font-bold font-mono tabular-nums text-destructive">
-            {formatCurrency(summary.monthlyInterestAccruing)}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Being added to your balance
-          </p>
-        </CardContent>
-      </Card>
 
-      <Card className="group relative">
-        <CardContent className="pt-6 space-y-2">
+          {/* Debt-free date */}
+          <div className="card-elevated rounded-xl p-4 space-y-1.5">
+            <div className="flex items-center gap-1.5">
+              <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Debt-free</span>
+            </div>
+            <p className="text-xl font-bold font-mono tabular-nums">
+              {payoffDateFormatted}
+            </p>
+            <p className="text-[10px] text-muted-foreground">
+              {comparison.avalanche.monthsToPayoff} months
+            </p>
+          </div>
+        </div>
+
+        {/* Monthly budget */}
+        <div className="card-elevated rounded-xl p-4 space-y-1.5 group relative">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <TrendingDown className="h-4 w-4 text-primary" />
-              <span className="text-xs font-medium uppercase tracking-wider">Monthly Budget</span>
+            <div className="flex items-center gap-1.5">
+              <TrendingDown className="h-3.5 w-3.5 text-primary/70" />
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Monthly budget</span>
             </div>
             <EditBudgetDialog />
           </div>
-          <p className="text-2xl font-bold font-mono tabular-nums">
-            {formatCurrency(monthlyBudget)}
-          </p>
-          <p className={`text-xs ${monthlyBudget < summary.monthlyMinimums ? "text-destructive" : "text-muted-foreground"}`}>
-            {monthlyBudget >= summary.monthlyMinimums
-              ? `${formatCurrency(monthlyBudget - summary.monthlyMinimums)} extra / mo`
-              : `${formatCurrency(summary.monthlyMinimums - monthlyBudget)} short of minimums`}
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="pt-6 space-y-2">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Calendar className="h-4 w-4" />
-            <span className="text-xs font-medium uppercase tracking-wider">Debt-Free By</span>
+          <div className="flex items-baseline gap-3">
+            <p className="text-xl font-bold font-mono tabular-nums">
+              {formatCurrency(monthlyBudget)}
+            </p>
+            <p className={`text-xs font-mono tabular-nums ${monthlyBudget < summary.monthlyMinimums ? "text-destructive" : "text-positive"}`}>
+              {monthlyBudget >= summary.monthlyMinimums
+                ? `+${formatCurrency(monthlyBudget - summary.monthlyMinimums)} extra`
+                : `${formatCurrency(summary.monthlyMinimums - monthlyBudget)} short`}
+            </p>
           </div>
-          <p className="text-2xl font-bold font-mono tabular-nums">
-            {payoffDateFormatted}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {comparison.avalanche.monthsToPayoff} months (avalanche)
-          </p>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
