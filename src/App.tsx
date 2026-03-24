@@ -1,10 +1,16 @@
 import { useEffect } from "react";
 import { useDebtStore } from "@/features/debt/store";
+import { useRouter } from "@/lib/router";
 import { OnboardingWizard } from "@/features/debt/components/onboarding/OnboardingWizard";
 import { DebtDashboard } from "@/features/debt/components/dashboard/DebtDashboard";
+import { PaymentHistory } from "@/features/debt/components/PaymentHistory";
+import { SettingsPage } from "@/features/settings/SettingsPage";
+import { Sidebar } from "@/components/Sidebar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 function App() {
   const { isLoading, hasCompletedOnboarding, initialize } = useDebtStore();
+  const { page } = useRouter();
 
   useEffect(() => {
     initialize();
@@ -26,10 +32,15 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-6xl p-6">
-        <DebtDashboard />
-      </div>
+    <div className="flex h-screen bg-background">
+      <Sidebar />
+      <ScrollArea className="flex-1">
+        <main className="mx-auto max-w-6xl p-6">
+          {page === "debt" && <DebtDashboard />}
+          {page === "payments" && <PaymentHistory />}
+          {page === "settings" && <SettingsPage />}
+        </main>
+      </ScrollArea>
     </div>
   );
 }
