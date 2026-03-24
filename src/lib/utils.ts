@@ -13,9 +13,21 @@ export function formatCurrency(amount: number): string {
 }
 
 export function formatDate(date: Date | string): string {
+  let d: Date;
+  if (typeof date === "string") {
+    // Parse YYYY-MM-DD as local time (not UTC) to avoid off-by-one in BST
+    const parts = date.split("-");
+    if (parts.length === 3) {
+      d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    } else {
+      d = new Date(date);
+    }
+  } else {
+    d = date;
+  }
   return new Intl.DateTimeFormat("en-GB", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
-  }).format(typeof date === "string" ? new Date(date) : date);
+  }).format(d);
 }
