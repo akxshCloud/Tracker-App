@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export type Page = "debt" | "payments" | "settings";
+export type Page = "debt" | "schedule" | "payments" | "settings";
 
 interface RouterStore {
   page: Page;
