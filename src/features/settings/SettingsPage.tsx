@@ -50,7 +50,8 @@ export function SettingsPage() {
       });
     } catch (err) {
       console.error(err);
-      setStatus({ type: "error", message: "Failed to import data. Check the file format." });
+      const msg = err instanceof Error ? err.message : "Unknown error";
+      setStatus({ type: "error", message: `Failed to import: ${msg}` });
     }
 
     // Reset file input
