@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { motion } from "framer-motion";
 import { useDebtStore } from "../../store";
 import { getDebtSummary, compareStrategies } from "../../calculations";
 import { OverviewCards } from "./OverviewCards";
@@ -10,6 +11,16 @@ import { InsightsPanel } from "./InsightsPanel";
 import { RecordPaymentDialog } from "./RecordPaymentDialog";
 import { AddDebtDialog } from "./AddDebtDialog";
 
+const fadeIn = {
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] },
+};
+
+const stagger = {
+  animate: { transition: { staggerChildren: 0.06 } },
+};
+
 export function DebtDashboard() {
   const { debts, monthlyBudget } = useDebtStore();
 
@@ -20,33 +31,57 @@ export function DebtDashboard() {
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Debt Dashboard</h1>
-          <p className="text-muted-foreground">
-            Your path to being debt-free.
+    <motion.div
+      className="space-y-8"
+      variants={stagger}
+      initial="initial"
+      animate="animate"
+    >
+      {/* Header */}
+      <motion.div variants={fadeIn} className="flex items-end justify-between">
+        <div className="space-y-1">
+          <p className="text-sm font-medium text-muted-foreground tracking-wide uppercase">
+            Debt Tracker
           </p>
+          <h1 className="text-4xl font-bold tracking-tight">
+            Your path to <span className="text-gradient">debt-free</span>
+          </h1>
         </div>
         <div className="flex items-center gap-2">
           <AddDebtDialog />
           <RecordPaymentDialog />
         </div>
-      </div>
+      </motion.div>
 
-      <OverviewCards summary={summary} monthlyBudget={monthlyBudget} comparison={comparison} />
+      {/* Overview cards */}
+      <motion.div variants={fadeIn}>
+        <OverviewCards summary={summary} monthlyBudget={monthlyBudget} comparison={comparison} />
+      </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <PayoffChart comparison={comparison} />
-        <StrategyComparison comparison={comparison} />
-      </div>
+      {/* Charts row */}
+      <motion.div variants={fadeIn} className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="lg:col-span-3">
+          <PayoffChart comparison={comparison} />
+        </div>
+        <div className="lg:col-span-2">
+          <StrategyComparison comparison={comparison} />
+        </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <WhatIfSimulator />
-        <InsightsPanel />
-      </div>
+      {/* Insights row */}
+      <motion.div variants={fadeIn} className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="lg:col-span-3">
+          <WhatIfSimulator />
+        </div>
+        <div className="lg:col-span-2">
+          <InsightsPanel />
+        </div>
+      </motion.div>
 
-      <DebtList />
-    </div>
+      {/* Debt list */}
+      <motion.div variants={fadeIn}>
+        <DebtList />
+      </motion.div>
+    </motion.div>
   );
 }

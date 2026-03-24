@@ -1,7 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { TrendingDown, Zap } from "lucide-react";
+import { TrendingDown, Zap, ArrowDown } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import type { compareStrategies } from "../../calculations";
 
@@ -13,69 +10,70 @@ export function StrategyComparison({ comparison }: StrategyComparisonProps) {
   const { avalanche, snowball, interestSaved } = comparison;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Strategy Comparison</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <div className="card-elevated rounded-2xl p-6 space-y-5 flex flex-col">
+      <div>
+        <h3 className="text-sm font-semibold">Strategy Comparison</h3>
+        <p className="text-xs text-muted-foreground">Avalanche vs Snowball</p>
+      </div>
+
+      <div className="flex-1 space-y-4">
         {/* Avalanche */}
-        <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-3">
+        <div className="rounded-xl bg-primary/5 border border-primary/15 p-4 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <TrendingDown className="h-4 w-4 text-primary" />
-              <span className="font-medium">Avalanche</span>
-              <Badge className="text-xs">Recommended</Badge>
+              <div className="h-7 w-7 rounded-lg bg-primary/15 flex items-center justify-center">
+                <TrendingDown className="h-3.5 w-3.5 text-primary" />
+              </div>
+              <div>
+                <span className="text-sm font-semibold">Avalanche</span>
+                <span className="ml-2 text-[10px] font-semibold uppercase tracking-wider text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+                  Best
+                </span>
+              </div>
             </div>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Pay highest interest first. Saves the most money.
-          </p>
-          <div className="grid grid-cols-3 gap-2 text-center">
-            <Stat label="Months" value={String(avalanche.monthsToPayoff)} />
-            <Stat label="Total Interest" value={formatCurrency(avalanche.totalInterestPaid)} />
-            <Stat label="Total Paid" value={formatCurrency(avalanche.totalPaid)} />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Months</p>
+              <p className="text-lg font-bold font-mono tabular-nums">{avalanche.monthsToPayoff}</p>
+            </div>
+            <div>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Interest</p>
+              <p className="text-lg font-bold font-mono tabular-nums">{formatCurrency(avalanche.totalInterestPaid)}</p>
+            </div>
           </div>
         </div>
 
         {/* Snowball */}
-        <div className="rounded-lg border border-border bg-card p-4 space-y-3">
+        <div className="rounded-xl bg-card border border-border p-4 space-y-3">
           <div className="flex items-center gap-2">
-            <Zap className="h-4 w-4 text-muted-foreground" />
-            <span className="font-medium">Snowball</span>
+            <div className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center">
+              <Zap className="h-3.5 w-3.5 text-muted-foreground" />
+            </div>
+            <span className="text-sm font-semibold">Snowball</span>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Pay smallest balance first. Quick wins for motivation.
-          </p>
-          <div className="grid grid-cols-3 gap-2 text-center">
-            <Stat label="Months" value={String(snowball.monthsToPayoff)} />
-            <Stat label="Total Interest" value={formatCurrency(snowball.totalInterestPaid)} />
-            <Stat label="Total Paid" value={formatCurrency(snowball.totalPaid)} />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Months</p>
+              <p className="text-lg font-bold font-mono tabular-nums">{snowball.monthsToPayoff}</p>
+            </div>
+            <div>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Interest</p>
+              <p className="text-lg font-bold font-mono tabular-nums">{formatCurrency(snowball.totalInterestPaid)}</p>
+            </div>
           </div>
         </div>
+      </div>
 
-        {interestSaved > 0 && (
-          <>
-            <Separator />
-            <div className="text-center space-y-1">
-              <p className="text-sm font-medium text-primary">
-                Avalanche saves you {formatCurrency(interestSaved)}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                in total interest compared to snowball
-              </p>
-            </div>
-          </>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="text-sm font-bold font-mono tabular-nums">{value}</p>
+      {/* Savings callout */}
+      {interestSaved > 0 && (
+        <div className="flex items-center justify-center gap-2 rounded-lg bg-positive/5 border border-positive/15 py-2.5 px-4">
+          <ArrowDown className="h-3.5 w-3.5 text-positive" />
+          <span className="text-xs font-semibold text-positive">
+            Avalanche saves {formatCurrency(interestSaved)}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

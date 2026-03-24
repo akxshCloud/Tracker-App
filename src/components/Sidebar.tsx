@@ -1,4 +1,5 @@
 import type { ComponentType } from "react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useRouter, type Page } from "@/lib/router";
 import {
@@ -9,7 +10,6 @@ import {
   Dumbbell,
   Target,
 } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface NavItem {
@@ -38,14 +38,17 @@ export function Sidebar() {
   const { page, navigate } = useRouter();
 
   return (
-    <aside className="flex h-screen w-16 flex-col items-center border-r border-sidebar-border bg-sidebar py-4 gap-2">
-      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary font-bold text-lg mb-2">
-        LT
+    <aside className="flex h-screen w-[68px] flex-col items-center border-r border-sidebar-border bg-sidebar py-5 gap-1">
+      {/* App brand */}
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 mb-4">
+        <div className="h-5 w-5 rounded-md bg-primary" />
       </div>
 
-      <Separator className="w-8" />
+      {/* Divider */}
+      <div className="w-8 h-px bg-sidebar-border mb-2" />
 
-      <nav className="flex flex-1 flex-col items-center gap-1 pt-2">
+      {/* Main nav */}
+      <nav className="flex flex-1 flex-col items-center gap-0.5 pt-1">
         {mainNav.map((item) => (
           <NavButton
             key={item.label}
@@ -55,7 +58,7 @@ export function Sidebar() {
           />
         ))}
 
-        <Separator className="w-8 my-2" />
+        <div className="w-8 h-px bg-sidebar-border my-3" />
 
         {futureNav.map((item) => (
           <NavButton
@@ -67,7 +70,8 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <nav className="flex flex-col items-center gap-1">
+      {/* Bottom nav */}
+      <nav className="flex flex-col items-center gap-0.5">
         {bottomNav.map((item) => (
           <NavButton
             key={item.label}
@@ -97,20 +101,34 @@ function NavButton({
         <button
           onClick={onClick}
           className={cn(
-            "flex h-10 w-10 items-center justify-center rounded-lg transition-colors",
+            "relative flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200",
             active
-              ? "bg-sidebar-accent text-sidebar-primary"
+              ? "text-primary"
               : item.disabled
-                ? "text-sidebar-foreground/20 cursor-not-allowed"
-                : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                ? "text-sidebar-foreground/15 cursor-not-allowed"
+                : "text-sidebar-foreground/40 hover:text-sidebar-foreground/70 hover:bg-sidebar-accent",
           )}
         >
-          <Icon className="h-5 w-5" />
+          {active && (
+            <motion.div
+              layoutId="sidebar-active"
+              className="absolute inset-0 rounded-xl bg-primary/10 glow-sm"
+              transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
+            />
+          )}
+          {active && (
+            <motion.div
+              layoutId="sidebar-indicator"
+              className="absolute -left-[14px] top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary"
+              transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
+            />
+          )}
+          <Icon className="h-[18px] w-[18px] relative z-10" />
         </button>
       </TooltipTrigger>
-      <TooltipContent side="right" className="text-xs">
+      <TooltipContent side="right" sideOffset={12} className="text-xs font-medium">
         {item.label}
-        {item.disabled && <span className="text-muted-foreground ml-1">(Coming soon)</span>}
+        {item.disabled && <span className="text-muted-foreground ml-1">(Soon)</span>}
       </TooltipContent>
     </Tooltip>
   );
