@@ -59,21 +59,21 @@ export function DebtDashboard() {
       </motion.div>
 
       {/* Charts row */}
-      <motion.div variants={fadeIn} className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <div className="lg:col-span-3">
+      <motion.div variants={fadeIn} className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-stretch">
+        <div className="lg:col-span-3 min-h-0">
           <PayoffChart comparison={comparison} />
         </div>
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 min-h-0">
           <StrategyComparison comparison={comparison} />
         </div>
       </motion.div>
 
       {/* Insights row */}
-      <motion.div variants={fadeIn} className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <div className="lg:col-span-3">
+      <motion.div variants={fadeIn} className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-stretch">
+        <div className="lg:col-span-3 min-h-0">
           <WhatIfSimulator />
         </div>
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 min-h-0">
           <InsightsPanel />
         </div>
       </motion.div>

@@ -34,7 +34,7 @@ export function WhatIfSimulator() {
     : "—";
 
   return (
-    <div className="card-elevated rounded-2xl p-6 space-y-5">
+    <div className="card-elevated rounded-2xl p-6 space-y-5 h-full flex flex-col">
       <div className="flex items-center gap-2">
         <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">
           <Sparkles className="h-3.5 w-3.5 text-primary" />
@@ -45,7 +45,7 @@ export function WhatIfSimulator() {
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-3 flex-1">
         <div className="relative">
           <PoundSterling className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input

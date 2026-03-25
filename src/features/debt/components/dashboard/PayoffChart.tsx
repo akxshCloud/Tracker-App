@@ -28,7 +28,7 @@ export function PayoffChart({ comparison }: PayoffChartProps) {
   }));
 
   return (
-    <div className="card-elevated rounded-2xl p-6 space-y-4">
+    <div className="card-elevated rounded-2xl p-6 space-y-4 h-full flex flex-col">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-sm font-semibold">Payoff Timeline</h3>
@@ -47,7 +47,8 @@ export function PayoffChart({ comparison }: PayoffChartProps) {
       </div>
 
       {chartData.length > 0 ? (
-        <ResponsiveContainer width="100%" height={260}>
+        <div className="flex-1 min-h-[260px]">
+        <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
             <defs>
               <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
@@ -112,8 +113,9 @@ export function PayoffChart({ comparison }: PayoffChartProps) {
             />
           </AreaChart>
         </ResponsiveContainer>
+        </div>
       ) : (
-        <div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
+        <div className="flex-1 min-h-[260px] flex items-center justify-center text-muted-foreground text-sm">
           No projection data
         </div>
       )}
