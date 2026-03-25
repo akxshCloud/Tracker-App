@@ -85,21 +85,21 @@ export function EditDebtDialog({ debt, open, onOpenChange }: EditDebtDialogProps
 
         <div className="px-6 pb-6 space-y-5">
           {/* Name + Category row */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 items-end">
             <div className="space-y-1.5">
               <Label htmlFor="edit-name" className="text-[11px] text-muted-foreground">Name</Label>
               <Input
                 id="edit-name"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="bg-background/50 border-border/50 h-10 text-sm"
+                className="bg-background/50 border-border/50 text-sm h-[42px]"
               />
               {errors.name && <p className="text-[10px] text-destructive">{errors.name}</p>}
             </div>
             <div className="space-y-1.5">
               <Label className="text-[11px] text-muted-foreground">Category</Label>
               <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v as DebtFormData["category"] })}>
-                <SelectTrigger className="w-full bg-background/50 border-border/50 !h-10 text-sm dark:bg-background/50">
+                <SelectTrigger className="w-full bg-background/50 border-border/50 text-sm !h-[42px] dark:bg-background/50">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -126,7 +126,7 @@ export function EditDebtDialog({ debt, open, onOpenChange }: EditDebtDialogProps
                   type="number"
                   step="0.01"
                   min="0"
-                  className="pl-8 font-mono text-sm bg-background/50 border-border/50 h-10"
+                  className="pl-8 font-mono text-sm bg-background/50 border-border/50 h-[42px]"
                   value={form.current_balance}
                   onChange={(e) => setForm({ ...form, current_balance: parseFloat(e.target.value) || 0 })}
                 />
@@ -141,7 +141,7 @@ export function EditDebtDialog({ debt, open, onOpenChange }: EditDebtDialogProps
                 type="number"
                 step="0.1"
                 min="0"
-                className="font-mono text-sm bg-background/50 border-border/50 h-10"
+                className="font-mono text-sm bg-background/50 border-border/50 h-[42px]"
                 value={form.interest_rate}
                 onChange={(e) => setForm({ ...form, interest_rate: parseFloat(e.target.value) || 0 })}
               />
@@ -157,7 +157,7 @@ export function EditDebtDialog({ debt, open, onOpenChange }: EditDebtDialogProps
                   type="number"
                   step="0.01"
                   min="0"
-                  className="pl-8 font-mono text-sm bg-background/50 border-border/50 h-10"
+                  className="pl-8 font-mono text-sm bg-background/50 border-border/50 h-[42px]"
                   value={form.minimum_payment}
                   onChange={(e) => setForm({ ...form, minimum_payment: parseFloat(e.target.value) || 0 })}
                 />
@@ -172,7 +172,7 @@ export function EditDebtDialog({ debt, open, onOpenChange }: EditDebtDialogProps
                 type="number"
                 min="1"
                 max="31"
-                className="font-mono text-sm bg-background/50 border-border/50 h-10"
+                className="font-mono text-sm bg-background/50 border-border/50 h-[42px]"
                 placeholder="—"
                 value={form.due_day ?? ""}
                 onChange={(e) => setForm({ ...form, due_day: e.target.value ? parseInt(e.target.value) : null })}
