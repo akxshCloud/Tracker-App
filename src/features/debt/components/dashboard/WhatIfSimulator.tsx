@@ -45,7 +45,7 @@ export function WhatIfSimulator() {
         </div>
       </div>
 
-      <div className="space-y-3 flex-1">
+      <div className="space-y-3">
         <div className="relative">
           <PoundSterling className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -73,7 +73,7 @@ export function WhatIfSimulator() {
       </div>
 
       {extraPayment > 0 && (
-        <>
+        <div className="mt-auto space-y-5">
           <Separator className="bg-border/30" />
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-1">
@@ -97,7 +97,7 @@ export function WhatIfSimulator() {
               <p className="text-lg font-bold font-mono tabular-nums">{whatIfPayoffDate}</p>
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
