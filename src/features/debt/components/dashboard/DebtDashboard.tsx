@@ -10,6 +10,7 @@ import { WhatIfSimulator } from "./WhatIfSimulator";
 import { InsightsPanel } from "./InsightsPanel";
 import { RecordPaymentDialog } from "./RecordPaymentDialog";
 import { AddDebtDialog } from "./AddDebtDialog";
+import { UpcomingPayments } from "./UpcomingPayments";
 
 const fadeIn = {
   initial: { opacity: 0, y: 8 },
@@ -56,6 +57,11 @@ export function DebtDashboard() {
       {/* Overview cards */}
       <motion.div variants={fadeIn}>
         <OverviewCards summary={summary} monthlyBudget={monthlyBudget} comparison={comparison} />
+      </motion.div>
+
+      {/* Upcoming payments */}
+      <motion.div variants={fadeIn}>
+        <UpcomingPayments />
       </motion.div>
 
       {/* Charts row */}
