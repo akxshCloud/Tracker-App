@@ -8,6 +8,7 @@ import { PaymentSchedule } from "@/features/debt/components/PaymentSchedule";
 import { PaymentHistory } from "@/features/debt/components/PaymentHistory";
 import { SettingsPage } from "@/features/settings/SettingsPage";
 import { Sidebar } from "@/components/Sidebar";
+import { UpdateChecker } from "@/components/UpdateChecker";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
 
   return (
     <div className="flex h-screen bg-background">
+      <UpdateChecker />
       <Sidebar />
       <ScrollArea className="flex-1">
         <main className="mx-auto max-w-6xl p-8">
