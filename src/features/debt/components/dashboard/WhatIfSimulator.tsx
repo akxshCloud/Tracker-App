@@ -34,7 +34,7 @@ export function WhatIfSimulator() {
     : "—";
 
   return (
-    <div className="card-elevated rounded-2xl p-6 space-y-5">
+    <div className="card-elevated rounded-2xl p-6 space-y-5 h-full flex flex-col">
       <div className="flex items-center gap-2">
         <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">
           <Sparkles className="h-3.5 w-3.5 text-primary" />
@@ -73,7 +73,7 @@ export function WhatIfSimulator() {
       </div>
 
       {extraPayment > 0 && (
-        <>
+        <div className="mt-auto space-y-5">
           <Separator className="bg-border/30" />
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-1">
@@ -97,7 +97,7 @@ export function WhatIfSimulator() {
               <p className="text-lg font-bold font-mono tabular-nums">{whatIfPayoffDate}</p>
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
