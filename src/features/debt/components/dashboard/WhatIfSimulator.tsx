@@ -29,7 +29,11 @@ export function WhatIfSimulator() {
   ) / 100);
 
   const whatIfPayoffDate = whatIfProjection.avalanche.payoffDate
-    ? new Date(whatIfProjection.avalanche.payoffDate + "-01").toLocaleDateString("en-GB", { month: "short", year: "numeric" })
+    ? (() => {
+        const [y, m] = whatIfProjection.avalanche.payoffDate.split("-");
+        return new Date(parseInt(y), parseInt(m) - 1, 1)
+          .toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+      })()
     : "—";
 
   const hasExtra = extraPayment > 0;
