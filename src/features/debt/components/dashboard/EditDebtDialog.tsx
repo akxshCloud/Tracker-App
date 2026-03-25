@@ -85,21 +85,21 @@ export function EditDebtDialog({ debt, open, onOpenChange }: EditDebtDialogProps
 
         <div className="px-6 pb-6 space-y-5">
           {/* Name + Category row */}
-          <div className="grid grid-cols-5 gap-3">
-            <div className="col-span-3 space-y-1.5">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
               <Label htmlFor="edit-name" className="text-[11px] text-muted-foreground">Name</Label>
               <Input
                 id="edit-name"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="bg-background/50 border-border/50 h-10"
+                className="bg-background/50 border-border/50 h-10 text-sm"
               />
               {errors.name && <p className="text-[10px] text-destructive">{errors.name}</p>}
             </div>
-            <div className="col-span-2 space-y-1.5">
+            <div className="space-y-1.5">
               <Label className="text-[11px] text-muted-foreground">Category</Label>
               <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v as DebtFormData["category"] })}>
-                <SelectTrigger className="w-full bg-background/50 border-border/50 !h-10 text-xs dark:bg-background/50">
+                <SelectTrigger className="w-full bg-background/50 border-border/50 !h-10 text-sm dark:bg-background/50">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
