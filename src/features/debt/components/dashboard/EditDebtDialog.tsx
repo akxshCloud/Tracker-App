@@ -99,7 +99,7 @@ export function EditDebtDialog({ debt, open, onOpenChange }: EditDebtDialogProps
             <div className="col-span-2 space-y-1.5">
               <Label className="text-[11px] text-muted-foreground">Category</Label>
               <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v as DebtFormData["category"] })}>
-                <SelectTrigger className="w-full bg-background/50 border-border/50 h-10 text-xs dark:bg-background/50">
+                <SelectTrigger className="w-full bg-background/50 border-border/50 !h-10 text-xs dark:bg-background/50">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
