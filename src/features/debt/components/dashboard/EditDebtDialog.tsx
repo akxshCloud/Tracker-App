@@ -5,10 +5,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { PoundSterling } from "lucide-react";
 import { useDebtStore } from "../../store";
 import { DEBT_CATEGORIES, type Debt, type DebtFormData } from "../../types";
@@ -50,10 +57,10 @@ export function EditDebtDialog({ debt, open, onOpenChange }: EditDebtDialogProps
   function validate(): boolean {
     const errs: Record<string, string> = {};
     if (!form.name.trim()) errs.name = "Name is required";
-    if (form.current_balance < 0) errs.current_balance = "Balance can't be negative";
-    if (form.interest_rate < 0) errs.interest_rate = "APR can't be negative";
+    if (form.current_balance < 0) errs.current_balance = "Can't be negative";
+    if (form.interest_rate < 0) errs.interest_rate = "Can't be negative";
     if (form.minimum_payment < 0) errs.minimum_payment = "Can't be negative";
-    if (form.due_day !== null && (form.due_day < 1 || form.due_day > 31)) errs.due_day = "Must be 1–31";
+    if (form.due_day !== null && (form.due_day < 1 || form.due_day > 31)) errs.due_day = "1–31";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   }
@@ -71,107 +78,115 @@ export function EditDebtDialog({ debt, open, onOpenChange }: EditDebtDialogProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Edit Debt</DialogTitle>
+      <DialogContent className="sm:max-w-[420px] gap-0 p-0 overflow-hidden">
+        <DialogHeader className="px-6 pt-6 pb-4">
+          <DialogTitle className="text-lg">Edit Debt</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 pt-2">
-          <div className="space-y-2">
-            <Label htmlFor="edit-name">Name</Label>
-            <Input
-              id="edit-name"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-            />
-            {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
-          </div>
 
-          <div className="space-y-2">
-            <Label>Category</Label>
-            <div className="flex flex-wrap gap-1.5">
-              {DEBT_CATEGORIES.map((cat) => (
-                <Badge
-                  key={cat.value}
-                  variant={form.category === cat.value ? "default" : "outline"}
-                  className="cursor-pointer text-xs border-border/50 hover:border-border transition-colors"
-                  onClick={() => setForm({ ...form, category: cat.value })}
-                >
-                  {cat.label}
-                </Badge>
-              ))}
+        <div className="px-6 pb-6 space-y-5">
+          {/* Name + Category row */}
+          <div className="grid grid-cols-5 gap-3">
+            <div className="col-span-3 space-y-1.5">
+              <Label htmlFor="edit-name" className="text-[11px] text-muted-foreground">Name</Label>
+              <Input
+                id="edit-name"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                className="bg-background/50 border-border/50 h-10"
+              />
+              {errors.name && <p className="text-[10px] text-destructive">{errors.name}</p>}
+            </div>
+            <div className="col-span-2 space-y-1.5">
+              <Label className="text-[11px] text-muted-foreground">Category</Label>
+              <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v as DebtFormData["category"] })}>
+                <SelectTrigger className="bg-background/50 border-border/50 h-10 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {DEBT_CATEGORIES.map((cat) => (
+                    <SelectItem key={cat.value} value={cat.value} className="text-xs">
+                      {cat.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <Label htmlFor="edit-balance">Balance (£)</Label>
+          <Separator className="bg-border/30" />
+
+          {/* Financial details — 2x2 grid */}
+          <div className="grid grid-cols-2 gap-x-3 gap-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-balance" className="text-[11px] text-muted-foreground">Balance</Label>
               <div className="relative">
-                <PoundSterling className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <PoundSterling className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <Input
                   id="edit-balance"
                   type="number"
                   step="0.01"
                   min="0"
-                  className="pl-9 font-mono"
+                  className="pl-8 font-mono text-sm bg-background/50 border-border/50 h-10"
                   value={form.current_balance}
                   onChange={(e) => setForm({ ...form, current_balance: parseFloat(e.target.value) || 0 })}
                 />
               </div>
-              {errors.current_balance && <p className="text-xs text-destructive">{errors.current_balance}</p>}
+              {errors.current_balance && <p className="text-[10px] text-destructive">{errors.current_balance}</p>}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-rate">APR (%)</Label>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-rate" className="text-[11px] text-muted-foreground">APR (%)</Label>
               <Input
                 id="edit-rate"
                 type="number"
                 step="0.1"
                 min="0"
-                className="font-mono"
+                className="font-mono text-sm bg-background/50 border-border/50 h-10"
                 value={form.interest_rate}
                 onChange={(e) => setForm({ ...form, interest_rate: parseFloat(e.target.value) || 0 })}
               />
-              {errors.interest_rate && <p className="text-xs text-destructive">{errors.interest_rate}</p>}
+              {errors.interest_rate && <p className="text-[10px] text-destructive">{errors.interest_rate}</p>}
             </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <Label htmlFor="edit-min">Min payment (£/mo)</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-min" className="text-[11px] text-muted-foreground">Min payment / mo</Label>
               <div className="relative">
-                <PoundSterling className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <PoundSterling className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <Input
                   id="edit-min"
                   type="number"
                   step="0.01"
                   min="0"
-                  className="pl-9 font-mono"
+                  className="pl-8 font-mono text-sm bg-background/50 border-border/50 h-10"
                   value={form.minimum_payment}
                   onChange={(e) => setForm({ ...form, minimum_payment: parseFloat(e.target.value) || 0 })}
                 />
               </div>
-              {errors.minimum_payment && <p className="text-xs text-destructive">{errors.minimum_payment}</p>}
+              {errors.minimum_payment && <p className="text-[10px] text-destructive">{errors.minimum_payment}</p>}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-due">Due day</Label>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-due" className="text-[11px] text-muted-foreground">Due day of month</Label>
               <Input
                 id="edit-due"
                 type="number"
                 min="1"
                 max="31"
-                className="font-mono"
-                placeholder="e.g. 15"
+                className="font-mono text-sm bg-background/50 border-border/50 h-10"
+                placeholder="—"
                 value={form.due_day ?? ""}
                 onChange={(e) => setForm({ ...form, due_day: e.target.value ? parseInt(e.target.value) : null })}
               />
-              {errors.due_day && <p className="text-xs text-destructive">{errors.due_day}</p>}
+              {errors.due_day && <p className="text-[10px] text-destructive">{errors.due_day}</p>}
             </div>
           </div>
 
           {errors.submit && <p className="text-xs text-destructive">{errors.submit}</p>}
 
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button onClick={handleSave}>Save Changes</Button>
+          {/* Actions */}
+          <div className="flex justify-end gap-2 pt-1">
+            <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)}>Cancel</Button>
+            <Button size="sm" onClick={handleSave}>Save Changes</Button>
           </div>
         </div>
       </DialogContent>
