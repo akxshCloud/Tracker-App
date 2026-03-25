@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { CalendarClock, AlertTriangle, Clock, CheckCircle2 } from "lucide-react";
 import { useDebtStore } from "../../store";
-import { getUpcomingPayments, type UpcomingPayment } from "../../notifications";
+import { getUpcomingPayments, ordinal, type UpcomingPayment } from "../../notifications";
 import { formatCurrency } from "@/lib/utils";
 
 export function UpcomingPayments() {
@@ -10,8 +10,25 @@ export function UpcomingPayments() {
 
   const upcoming = useMemo(() => getUpcomingPayments(debts), [debts]);
 
+  const hasDebtsWithoutDueDay = debts.some((d) => d.due_day === null && d.current_balance > 0);
+
   if (upcoming.length === 0) {
-    return null;
+    if (!hasDebtsWithoutDueDay) return null;
+    return (
+      <div className="card-elevated rounded-2xl p-5">
+        <div className="flex items-center gap-2">
+          <div className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center">
+            <CalendarClock className="h-3.5 w-3.5 text-muted-foreground" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold">Upcoming Payments</h3>
+            <p className="text-xs text-muted-foreground">
+              Add a due day to your debts to see payment reminders here
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const hasUrgent = upcoming.some((p) => p.status === "overdue" || p.status === "due-today" || p.status === "due-soon");
@@ -102,10 +119,4 @@ function PaymentRow({ payment }: { payment: UpcomingPayment }) {
       </span>
     </div>
   );
-}
-
-function ordinal(n: number): string {
-  const s = ["th", "st", "nd", "rd"];
-  const v = n % 100;
-  return s[(v - 20) % 10] || s[v] || s[0];
 }

@@ -14,6 +14,28 @@ export interface UpcomingPayment {
 }
 
 /**
+ * Compare two dates by calendar day only (DST-safe).
+ * Returns the number of days from `from` to `to`.
+ */
+function daysBetween(from: Date, to: Date): number {
+  const fromMidnight = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+  const toMidnight = new Date(to.getFullYear(), to.getMonth(), to.getDate());
+  return Math.round((toMidnight.getTime() - fromMidnight.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+function ordinal(n: number): string {
+  if (n >= 11 && n <= 13) return "th";
+  switch (n % 10) {
+    case 1: return "st";
+    case 2: return "nd";
+    case 3: return "rd";
+    default: return "th";
+  }
+}
+
+export { ordinal };
+
+/**
  * Get upcoming payments for the current month, sorted by urgency.
  */
 export function getUpcomingPayments(debts: Debt[]): UpcomingPayment[] {
@@ -27,24 +49,18 @@ export function getUpcomingPayments(debts: Debt[]): UpcomingPayment[] {
     .map((debt) => {
       const dueDay = debt.due_day!;
 
-      // Figure out the next due date
       let dueDate = new Date(currentYear, currentMonth, dueDay);
 
-      // If the due date has passed this month, it's either overdue or next month
       if (dueDay < currentDay) {
-        // Check if it's within the overdue window (past 3 days)
         const daysPast = currentDay - dueDay;
         if (daysPast <= 7) {
-          // Still show as overdue this month
           dueDate = new Date(currentYear, currentMonth, dueDay);
         } else {
-          // Move to next month
           dueDate = new Date(currentYear, currentMonth + 1, dueDay);
         }
       }
 
-      const diffTime = dueDate.getTime() - now.getTime();
-      const daysUntilDue = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const daysUntilDue = daysBetween(now, dueDate);
 
       let status: UpcomingPayment["status"];
       if (daysUntilDue < 0) {
@@ -67,7 +83,6 @@ export function getUpcomingPayments(debts: Debt[]): UpcomingPayment[] {
  * Called once on app launch.
  */
 export async function checkAndNotify(debts: Debt[]): Promise<void> {
-  // Check permission
   let granted = await isPermissionGranted();
   if (!granted) {
     const permission = await requestPermission();
@@ -76,18 +91,17 @@ export async function checkAndNotify(debts: Debt[]): Promise<void> {
   if (!granted) return;
 
   const upcoming = getUpcomingPayments(debts);
-
-  // Only notify for overdue and due-today/due-soon
   const urgent = upcoming.filter((p) => p.status === "overdue" || p.status === "due-today" || p.status === "due-soon");
 
   if (urgent.length === 0) return;
 
-  // Check if we already notified today (store in localStorage)
+  // Only notify once per day
   const today = new Date().toISOString().split("T")[0];
   const lastNotified = localStorage.getItem("last_notification_date");
   if (lastNotified === today) return;
 
-  // Send notifications
+  let sentCount = 0;
+
   for (const payment of urgent) {
     const { debt, daysUntilDue, status } = payment;
 
@@ -105,8 +119,16 @@ export async function checkAndNotify(debts: Debt[]): Promise<void> {
       body = `${formatCurrency(debt.minimum_payment)} due in ${daysUntilDue} day${daysUntilDue === 1 ? "" : "s"}`;
     }
 
-    sendNotification({ title, body });
+    try {
+      await sendNotification({ title, body });
+      sentCount++;
+    } catch (err) {
+      console.debug("Failed to send notification:", err);
+    }
   }
 
-  localStorage.setItem("last_notification_date", today);
+  // Only mark as notified if at least one notification was sent
+  if (sentCount > 0) {
+    localStorage.setItem("last_notification_date", today);
+  }
 }
