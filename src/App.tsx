@@ -8,6 +8,7 @@ import { PaymentSchedule } from "@/features/debt/components/PaymentSchedule";
 import { PaymentHistory } from "@/features/debt/components/PaymentHistory";
 import { SettingsPage } from "@/features/settings/SettingsPage";
 import { Sidebar } from "@/components/Sidebar";
+import { checkAndNotify } from "@/features/debt/notifications";
 import { UpdateChecker } from "@/components/UpdateChecker";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -16,7 +17,13 @@ function App() {
   const { page } = useRouter();
 
   useEffect(() => {
-    initialize();
+    initialize().then(() => {
+      // Check for payment reminders after data loads
+      const { debts } = useDebtStore.getState();
+      if (debts.length > 0) {
+        checkAndNotify(debts).catch(console.debug);
+      }
+    });
   }, [initialize]);
 
   if (isLoading) {
