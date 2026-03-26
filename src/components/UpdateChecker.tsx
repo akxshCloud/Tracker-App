@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { check, type Update } from "@tauri-apps/plugin-updater";
+import { getSetting } from "@/features/debt/db";
 import { Button } from "@/components/ui/button";
 import { Download, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,7 +16,15 @@ export function UpdateChecker() {
   useEffect(() => {
     async function checkForUpdate() {
       try {
-        const update = await check();
+        // Get GitHub token for private repo access
+        const token = await getSetting("github_token");
+        const headers: Record<string, string> = {};
+        if (token) {
+          headers["Authorization"] = `token ${token}`;
+          headers["Accept"] = "application/octet-stream";
+        }
+
+        const update = await check({ headers });
         if (update) {
           updateRef.current = update;
           setUpdateAvailable(true);
@@ -37,7 +46,18 @@ export function UpdateChecker() {
     setIsUpdating(true);
     setUpdateError(null);
     try {
-      await update.downloadAndInstall();
+      // Get token for authenticated download
+      const token = await getSetting("github_token");
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers["Authorization"] = `token ${token}`;
+        headers["Accept"] = "application/octet-stream";
+      }
+
+      await update.downloadAndInstall((progress) => {
+        // Could add progress bar here in future
+        console.debug("Download progress:", progress);
+      });
     } catch (err) {
       console.error("Update failed:", err);
       setUpdateError("Update failed. Please try again.");
