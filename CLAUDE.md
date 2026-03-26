@@ -17,11 +17,12 @@ A native macOS desktop application (Tauri v2 + React + TypeScript) that serves a
 - **Settings**: Data export/import (JSON), reset all data, background notification toggle
 - **Standalone App**: Installed to /Applications, launches from Launchpad/Spotlight
 - **Auto-Updater**: Checks GitHub Releases on launch, one-click update. CI builds on version tags.
+- **Budget Planner**: TrueLayer bank connection, auto-categorised transactions (needs/wants/savings/debt/income), monthly breakdown
 - **UI**: Premium blue fintech aesthetic (Revolut/Stripe inspired), dark mode, Geist fonts, framer-motion animations
 
 ### Roadmap (agreed 2026-03-25)
 1. ~~Smart Payment Reminders~~ ✓
-2. **TrueLayer Bank Connection + Budget Planner** — connect debit account, auto-categorise transactions (needs/wants/savings/debt). Only debt entries are manual — income and expenses come from bank feed.
+2. ~~TrueLayer Bank Connection + Budget Planner~~ ✓
 3. **Net Worth Tracker** — assets minus debts over time
 4. **Habits Tracker** — later, when ready
 
@@ -127,3 +128,4 @@ settings (key, value) — stores onboarding_complete, monthly_budget
 - **v0.1.0** — Initial scaffold
 - **v0.2.0** — Debt dashboard, insights, payment recording, app shell, UI overhaul, payment schedule, edit/delete debts, standalone app + auto-updater
 - **v0.3.0** — Payment reminders (native macOS notifications), background notifications (Launch Agent), What-if slider redesign
+- **v0.4.0** — Budget planner with TrueLayer bank connection, auto-categorisation, monthly breakdown
