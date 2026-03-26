@@ -27,9 +27,16 @@ export async function startBankConnection(): Promise<{ success: boolean; error?:
   try {
     const authLink = await getAuthLink();
 
+    // Start the callback server FIRST, then open the browser
+    // This ensures the server is listening before TrueLayer redirects back
+    const callbackPromise = waitForCallback();
+
+    // Small delay to ensure the server is listening before we open the browser
+    await new Promise((r) => setTimeout(r, 500));
+
     await openUrl(authLink);
 
-    const result = await waitForCallback();
+    const result = await callbackPromise;
 
     if (!result.code) {
       return { success: false, error: "No authorization code received. Did you complete the bank login?" };
@@ -59,7 +66,7 @@ async function waitForCallback(): Promise<CallbackResult> {
   const { Command } = await import("@tauri-apps/plugin-shell");
 
   return new Promise((resolve) => {
-    const timeout = setTimeout(() => resolve({ code: null, state: null }), 120000);
+    const timeout = setTimeout(() => resolve({ code: null, state: null }), 300000); // 5 min timeout
 
     const serverScript = `
 import http.server
@@ -93,7 +100,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         pass
 
 server = http.server.HTTPServer(('localhost', ${REDIRECT_PORT}), Handler)
-server.timeout = 120
+server.timeout = 300
 server.handle_request()
 `;
 
