@@ -1,4 +1,98 @@
 use tauri_plugin_sql::{Migration, MigrationKind};
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::net::TcpListener;
+
+#[derive(serde::Serialize)]
+struct OAuthCallback {
+    code: Option<String>,
+    state: Option<String>,
+    error: Option<String>,
+}
+
+#[tauri::command]
+async fn wait_for_oauth_callback(port: u16, timeout_secs: u64) -> Result<OAuthCallback, String> {
+    let addr = format!("127.0.0.1:{}", port);
+    let listener = TcpListener::bind(&addr)
+        .await
+        .map_err(|e| format!("Failed to bind to {}: {}", addr, e))?;
+
+    let result = tokio::time::timeout(
+        std::time::Duration::from_secs(timeout_secs),
+        async {
+            let (mut stream, _) = listener.accept().await.map_err(|e| format!("Accept failed: {}", e))?;
+
+            let mut buf = vec![0u8; 4096];
+            let n = stream.read(&mut buf).await.map_err(|e| format!("Read failed: {}", e))?;
+            let request = String::from_utf8_lossy(&buf[..n]).to_string();
+
+            // Parse the GET request line to extract query params
+            let first_line = request.lines().next().unwrap_or("");
+            let path = first_line.split_whitespace().nth(1).unwrap_or("/");
+
+            let mut code: Option<String> = None;
+            let mut state: Option<String> = None;
+            let mut error: Option<String> = None;
+
+            if let Some(query) = path.split('?').nth(1) {
+                for param in query.split('&') {
+                    let mut kv = param.splitn(2, '=');
+                    let key = kv.next().unwrap_or("");
+                    let value = kv.next().unwrap_or("");
+                    let decoded = urlencoding_decode(value);
+                    match key {
+                        "code" => code = Some(decoded),
+                        "state" => state = Some(decoded),
+                        "error" => error = Some(decoded),
+                        _ => {}
+                    }
+                }
+            }
+
+            // Send response HTML
+            let body = if code.is_some() {
+                r#"<html><body style="background:#0a0a0f;color:white;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h1>Connected!</h1><p>You can close this tab and return to Life Tracker.</p></div></body></html>"#
+            } else {
+                r#"<html><body style="background:#0a0a0f;color:white;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h1>Error</h1><p>Bank connection failed. Please try again.</p></div></body></html>"#
+            };
+
+            let response = format!(
+                "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
+                body.len(),
+                body
+            );
+            let _ = stream.write_all(response.as_bytes()).await;
+            let _ = stream.flush().await;
+
+            Ok::<OAuthCallback, String>(OAuthCallback { code, state, error })
+        }
+    ).await;
+
+    match result {
+        Ok(Ok(callback)) => Ok(callback),
+        Ok(Err(e)) => Err(e),
+        Err(_) => Err("Timeout waiting for bank callback".to_string()),
+    }
+}
+
+fn urlencoding_decode(s: &str) -> String {
+    let mut result = String::new();
+    let mut chars = s.bytes();
+    while let Some(b) = chars.next() {
+        if b == b'%' {
+            let hi = chars.next().unwrap_or(b'0');
+            let lo = chars.next().unwrap_or(b'0');
+            let hex = format!("{}{}", hi as char, lo as char);
+            if let Ok(val) = u8::from_str_radix(&hex, 16) {
+                result.push(val as char);
+            }
+        } else if b == b'+' {
+            result.push(' ');
+        } else {
+            result.push(b as char);
+        }
+    }
+    result
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -84,6 +178,7 @@ pub fn run() {
                 .add_migrations("sqlite:tracker.db", migrations)
                 .build(),
         )
+        .invoke_handler(tauri::generate_handler![wait_for_oauth_callback])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

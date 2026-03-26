@@ -1,4 +1,5 @@
 import { openUrl } from "@tauri-apps/plugin-opener";
+import { invoke } from "@tauri-apps/api/core";
 import { getSetting } from "@/features/debt/db";
 import {
   getAuthLink,
@@ -10,9 +11,10 @@ import {
 } from "./truelayer";
 import { saveBankAccount, saveTransaction, deleteBankAccounts } from "./db";
 
-interface CallbackResult {
+interface OAuthCallback {
   code: string | null;
   state: string | null;
+  error: string | null;
 }
 
 /**
@@ -22,20 +24,26 @@ export async function startBankConnection(): Promise<{ success: boolean; error?:
   try {
     const authLink = await getAuthLink();
 
-    // Start the callback server FIRST, then open the browser
-    const callbackPromise = waitForCallback();
-    await new Promise((r) => setTimeout(r, 500));
+    // Start the Rust-native TCP listener FIRST, then open the browser
+    const callbackPromise = invoke<OAuthCallback>("wait_for_oauth_callback", {
+      port: REDIRECT_PORT,
+      timeoutSecs: 300,
+    });
+
+    // Small delay to ensure the listener is bound before opening the browser
+    await new Promise((r) => setTimeout(r, 300));
     await openUrl(authLink);
 
     const result = await callbackPromise;
 
     if (!result.code) {
-      return { success: false, error: "No authorization code received. Did you complete the bank login?" };
+      return { success: false, error: result.error ?? "No authorization code received." };
     }
 
+    // Verify OAuth state (CSRF protection)
     const expectedState = await getSetting("truelayer_oauth_state");
     if (!expectedState || result.state !== expectedState) {
-      return { success: false, error: "Security check failed — OAuth state mismatch. Please try again." };
+      return { success: false, error: "Security check failed — OAuth state mismatch." };
     }
 
     await exchangeCode(result.code);
@@ -43,69 +51,9 @@ export async function startBankConnection(): Promise<{ success: boolean; error?:
 
     return { success: true };
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
+    const message = err instanceof Error ? err.message : String(err);
     return { success: false, error: message };
   }
-}
-
-/**
- * Wait for the OAuth callback using a Node.js one-shot HTTP server via bash.
- */
-async function waitForCallback(): Promise<CallbackResult> {
-  const { Command } = await import("@tauri-apps/plugin-shell");
-
-  return new Promise((resolve) => {
-    const timeout = setTimeout(() => resolve({ code: null, state: null }), 300000);
-
-    // Use Node.js instead of Python — guaranteed to be installed since the app was built with npm
-    const serverScript = `
-const http = require('http');
-const url = require('url');
-const server = http.createServer((req, res) => {
-  const parsed = url.parse(req.url, true);
-  const code = parsed.query.code || null;
-  const state = parsed.query.state || null;
-  const error = parsed.query.error || null;
-
-  res.writeHead(200, {'Content-Type': 'text/html'});
-  if (code) {
-    res.end('<html><body style="background:#0a0a0f;color:white;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h1>Connected!</h1><p>You can close this tab and return to Life Tracker.</p></div></body></html>');
-    console.log('CODE:' + code + '|STATE:' + (state || ''));
-  } else {
-    const safeError = (error || 'unknown').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    res.end('<html><body style="background:#0a0a0f;color:white;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h1>Error</h1><p>' + safeError + '</p></div></body></html>');
-    console.log('ERROR:' + safeError);
-  }
-  server.close();
-});
-server.listen(${REDIRECT_PORT}, 'localhost', () => {
-  console.log('LISTENING');
-});
-server.setTimeout(300000);
-`;
-
-    const cmd = Command.create("bash", ["-c", `node -e '${serverScript.replace(/'/g, "'\\''")}'`]);
-
-    cmd.stdout.on("data", (line: string) => {
-      const trimmed = line.trim();
-      if (trimmed.startsWith("CODE:")) {
-        clearTimeout(timeout);
-        const parts = trimmed.replace("CODE:", "");
-        const [code, statePart] = parts.split("|STATE:");
-        resolve({ code: code.trim(), state: statePart?.trim() ?? null });
-      } else if (trimmed.startsWith("ERROR:")) {
-        clearTimeout(timeout);
-        resolve({ code: null, state: null });
-      }
-    });
-
-    cmd.on("error", () => {
-      clearTimeout(timeout);
-      resolve({ code: null, state: null });
-    });
-
-    cmd.spawn();
-  });
 }
 
 /**
