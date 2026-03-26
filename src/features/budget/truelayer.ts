@@ -43,21 +43,26 @@ export async function exchangeCode(code: string): Promise<{
 
   if (!clientId || !clientSecret) throw new Error("TrueLayer credentials not configured");
 
-  const response = await fetch(`${AUTH_BASE}/connect/token`, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      grant_type: "authorization_code",
-      client_id: clientId,
-      client_secret: clientSecret,
-      redirect_uri: REDIRECT_URI,
-      code,
-    }),
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${AUTH_BASE}/connect/token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "authorization_code",
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: REDIRECT_URI,
+        code,
+      }),
+    });
+  } catch (fetchErr) {
+    throw new Error(`Network error during token exchange: ${fetchErr instanceof Error ? fetchErr.message : fetchErr}. This may be a CSP or connectivity issue.`);
+  }
 
   if (!response.ok) {
     const err = await response.text();
-    throw new Error(`Token exchange failed: ${err}`);
+    throw new Error(`Token exchange failed (${response.status}): ${err}`);
   }
 
   const data = await response.json();
