@@ -16,24 +16,15 @@ interface CallbackResult {
 }
 
 /**
- * Start the bank connection flow:
- * 1. Open the auth link in the user's browser
- * 2. Start a temporary local server to capture the callback
- * 3. Verify state parameter (CSRF protection)
- * 4. Exchange the code for tokens
- * 5. Fetch and store accounts
+ * Start the bank connection flow.
  */
 export async function startBankConnection(): Promise<{ success: boolean; error?: string }> {
   try {
     const authLink = await getAuthLink();
 
     // Start the callback server FIRST, then open the browser
-    // This ensures the server is listening before TrueLayer redirects back
     const callbackPromise = waitForCallback();
-
-    // Small delay to ensure the server is listening before we open the browser
     await new Promise((r) => setTimeout(r, 500));
-
     await openUrl(authLink);
 
     const result = await callbackPromise;
@@ -42,14 +33,12 @@ export async function startBankConnection(): Promise<{ success: boolean; error?:
       return { success: false, error: "No authorization code received. Did you complete the bank login?" };
     }
 
-    // Verify OAuth state to prevent CSRF
     const expectedState = await getSetting("truelayer_oauth_state");
     if (!expectedState || result.state !== expectedState) {
       return { success: false, error: "Security check failed — OAuth state mismatch. Please try again." };
     }
 
     await exchangeCode(result.code);
-
     await syncAccounts();
 
     return { success: true };
@@ -60,59 +49,51 @@ export async function startBankConnection(): Promise<{ success: boolean; error?:
 }
 
 /**
- * Wait for the OAuth callback by starting a one-shot HTTP server.
+ * Wait for the OAuth callback using a Node.js one-shot HTTP server via bash.
  */
 async function waitForCallback(): Promise<CallbackResult> {
   const { Command } = await import("@tauri-apps/plugin-shell");
 
   return new Promise((resolve) => {
-    const timeout = setTimeout(() => resolve({ code: null, state: null }), 300000); // 5 min timeout
+    const timeout = setTimeout(() => resolve({ code: null, state: null }), 300000);
 
+    // Use Node.js instead of Python — guaranteed to be installed since the app was built with npm
     const serverScript = `
-import http.server
-import urllib.parse
-import html as html_module
+const http = require('http');
+const url = require('url');
+const server = http.createServer((req, res) => {
+  const parsed = url.parse(req.url, true);
+  const code = parsed.query.code || null;
+  const state = parsed.query.state || null;
+  const error = parsed.query.error || null;
 
-class Handler(http.server.BaseHTTPRequestHandler):
-    def do_GET(self):
-        parsed = urllib.parse.urlparse(self.path)
-        params = urllib.parse.parse_qs(parsed.query)
-        code = params.get('code', [None])[0]
-        state = params.get('state', [None])[0]
-
-        self.send_response(200)
-        self.send_header('Content-Type', 'text/html')
-        self.end_headers()
-
-        if code:
-            page = '<html><body style="background:#0a0a0f;color:white;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h1>Connected!</h1><p>You can close this tab and return to Life Tracker.</p></div></body></html>'
-            self.wfile.write(page.encode())
-            state_str = state if state else ''
-            print(f"CODE:{code}|STATE:{state_str}", flush=True)
-        else:
-            error = params.get('error', ['unknown'])[0]
-            safe_error = html_module.escape(error)
-            page = f'<html><body style="background:#0a0a0f;color:white;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h1>Error</h1><p>{safe_error}</p></div></body></html>'
-            self.wfile.write(page.encode())
-            print(f"ERROR:{safe_error}", flush=True)
-
-    def log_message(self, format, *args):
-        pass
-
-server = http.server.HTTPServer(('localhost', ${REDIRECT_PORT}), Handler)
-server.timeout = 300
-server.handle_request()
+  res.writeHead(200, {'Content-Type': 'text/html'});
+  if (code) {
+    res.end('<html><body style="background:#0a0a0f;color:white;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h1>Connected!</h1><p>You can close this tab and return to Life Tracker.</p></div></body></html>');
+    console.log('CODE:' + code + '|STATE:' + (state || ''));
+  } else {
+    const safeError = (error || 'unknown').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    res.end('<html><body style="background:#0a0a0f;color:white;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h1>Error</h1><p>' + safeError + '</p></div></body></html>');
+    console.log('ERROR:' + safeError);
+  }
+  server.close();
+});
+server.listen(${REDIRECT_PORT}, 'localhost', () => {
+  console.log('LISTENING');
+});
+server.setTimeout(300000);
 `;
 
-    const cmd = Command.create("python3", ["-c", serverScript]);
+    const cmd = Command.create("bash", ["-c", `node -e '${serverScript.replace(/'/g, "'\\''")}'`]);
 
     cmd.stdout.on("data", (line: string) => {
-      if (line.startsWith("CODE:")) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith("CODE:")) {
         clearTimeout(timeout);
-        const parts = line.replace("CODE:", "").trim();
+        const parts = trimmed.replace("CODE:", "");
         const [code, statePart] = parts.split("|STATE:");
         resolve({ code: code.trim(), state: statePart?.trim() ?? null });
-      } else if (line.startsWith("ERROR:")) {
+      } else if (trimmed.startsWith("ERROR:")) {
         clearTimeout(timeout);
         resolve({ code: null, state: null });
       }

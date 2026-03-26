@@ -35,8 +35,7 @@
       "identifier": "shell:allow-execute",
       "allow": [
         { "name": "chmod", "cmd": "chmod", "args": ["+x"] },
-        { "name": "bash", "cmd": "bash", "args": true },
-        { "name": "python3", "cmd": "python3", "args": true }
+        { "name": "bash", "cmd": "bash", "args": true }
       ]
     }
   ]
