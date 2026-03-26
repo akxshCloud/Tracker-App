@@ -5,6 +5,7 @@ import { useRouter } from "@/lib/router";
 import { OnboardingWizard } from "@/features/debt/components/onboarding/OnboardingWizard";
 import { DebtDashboard } from "@/features/debt/components/dashboard/DebtDashboard";
 import { PaymentSchedule } from "@/features/debt/components/PaymentSchedule";
+import { BudgetPage } from "@/features/budget/components/BudgetPage";
 import { PaymentHistory } from "@/features/debt/components/PaymentHistory";
 import { SettingsPage } from "@/features/settings/SettingsPage";
 import { Sidebar } from "@/components/Sidebar";
@@ -60,6 +61,7 @@ function App() {
             >
               {page === "debt" && <DebtDashboard />}
               {page === "schedule" && <PaymentSchedule />}
+              {page === "budget" && <BudgetPage />}
               {page === "payments" && <PaymentHistory />}
               {page === "settings" && <SettingsPage />}
             </motion.div>
