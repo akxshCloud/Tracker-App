@@ -27,16 +27,15 @@
     {
       "identifier": "fs:scope",
       "allow": [
-        { "path": "$HOME/Library/LaunchAgents/**" },
-        { "path": "$APPDATA/**" }
+        { "path": "$HOME/Library/LaunchAgents/**" }
       ]
     },
     "shell:default",
     {
       "identifier": "shell:allow-execute",
       "allow": [
-        { "name": "chmod", "cmd": "chmod", "args": true },
-        { "name": "launchctl", "cmd": "launchctl", "args": true }
+        { "name": "chmod", "cmd": "chmod", "args": ["+x"] },
+        { "name": "bash", "cmd": "bash", "args": true }
       ]
     }
   ]
