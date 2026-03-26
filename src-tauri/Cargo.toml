@@ -1,6 +1,6 @@
 [package]
 name = "tracker-app"
-version = "0.2.0"
+version = "0.3.0"
 description = "Personal life tracker — debt management, habits, goals"
 authors = ["akash"]
 edition = "2021"
