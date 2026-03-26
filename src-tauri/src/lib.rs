@@ -38,6 +38,39 @@ pub fn run() {
             ",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 2,
+            description: "create_bank_transactions_table",
+            sql: "
+                CREATE TABLE IF NOT EXISTS bank_accounts (
+                    id TEXT PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    account_type TEXT NOT NULL DEFAULT 'TRANSACTION',
+                    currency TEXT NOT NULL DEFAULT 'GBP',
+                    provider TEXT,
+                    connected_at TEXT NOT NULL DEFAULT (datetime('now'))
+                );
+
+                CREATE TABLE IF NOT EXISTS transactions (
+                    id TEXT PRIMARY KEY,
+                    bank_account_id TEXT NOT NULL,
+                    amount REAL NOT NULL,
+                    currency TEXT NOT NULL DEFAULT 'GBP',
+                    description TEXT NOT NULL,
+                    merchant_name TEXT,
+                    transaction_type TEXT NOT NULL DEFAULT 'DEBIT',
+                    transaction_date TEXT NOT NULL,
+                    budget_category TEXT NOT NULL DEFAULT 'uncategorised',
+                    user_categorised INTEGER NOT NULL DEFAULT 0,
+                    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                    FOREIGN KEY (bank_account_id) REFERENCES bank_accounts(id) ON DELETE CASCADE
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(transaction_date);
+                CREATE INDEX IF NOT EXISTS idx_transactions_category ON transactions(budget_category);
+            ",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
