@@ -17,6 +17,26 @@
     "notification:allow-is-permission-granted",
     "notification:allow-request-permission",
     "notification:allow-notify",
-    "notification:allow-register-action-types"
+    "notification:allow-register-action-types",
+    "fs:default",
+    "fs:allow-exists",
+    "fs:allow-mkdir",
+    "fs:allow-write-text-file",
+    "fs:allow-remove",
+    "fs:scope-app-data",
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        { "path": "$HOME/Library/LaunchAgents/**" }
+      ]
+    },
+    "shell:default",
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        { "name": "chmod", "cmd": "chmod", "args": ["+x"] },
+        { "name": "bash", "cmd": "bash", "args": true }
+      ]
+    }
   ]
 }

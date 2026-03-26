@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -9,15 +9,22 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Settings, Download, Upload, RotateCcw, CheckCircle2, AlertTriangle } from "lucide-react";
+import { Settings, Download, Upload, RotateCcw, CheckCircle2, AlertTriangle, Bell, BellOff } from "lucide-react";
 import { useDebtStore } from "@/features/debt/store";
 import { exportAllData, importAllData } from "./data-export";
+import { installLaunchAgent, uninstallLaunchAgent, isLaunchAgentInstalled } from "./launch-agent";
 
 export function SettingsPage() {
   const { initialize, reload } = useDebtStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [bgNotifyEnabled, setBgNotifyEnabled] = useState(false);
+  const [bgNotifyLoading, setBgNotifyLoading] = useState(false);
+
+  useEffect(() => {
+    isLaunchAgentInstalled().then(setBgNotifyEnabled).catch(() => {});
+  }, []);
 
   async function handleExport() {
     try {
@@ -100,6 +107,55 @@ export function SettingsPage() {
           </Button>
         </div>
       )}
+
+      {/* Notifications */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Notifications</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Background Payment Reminders</p>
+              <p className="text-sm text-muted-foreground">
+                Get notified about upcoming and overdue payments even when the app is closed.
+                Runs daily at 9am via macOS.
+              </p>
+            </div>
+            <Button
+              variant={bgNotifyEnabled ? "destructive" : "default"}
+              size="sm"
+              disabled={bgNotifyLoading}
+              className="gap-1.5"
+              onClick={async () => {
+                setBgNotifyLoading(true);
+                try {
+                  if (bgNotifyEnabled) {
+                    await uninstallLaunchAgent();
+                    setBgNotifyEnabled(false);
+                    setStatus({ type: "success", message: "Background reminders disabled." });
+                  } else {
+                    await installLaunchAgent();
+                    setBgNotifyEnabled(true);
+                    setStatus({ type: "success", message: "Background reminders enabled. You'll get notifications at 9am daily." });
+                  }
+                } catch (err) {
+                  console.error(err);
+                  setStatus({ type: "error", message: "Failed to update background reminders." });
+                } finally {
+                  setBgNotifyLoading(false);
+                }
+              }}
+            >
+              {bgNotifyEnabled ? (
+                <><BellOff className="h-3.5 w-3.5" /> Disable</>
+              ) : (
+                <><Bell className="h-3.5 w-3.5" /> Enable</>
+              )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Data Management */}
       <Card>
