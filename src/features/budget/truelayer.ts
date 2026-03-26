@@ -14,12 +14,17 @@ export async function getAuthLink(): Promise<string> {
   const clientId = await getSetting("truelayer_client_id");
   if (!clientId) throw new Error("TrueLayer client ID not configured");
 
+  // Generate CSRF state token
+  const state = crypto.randomUUID();
+  await setSetting("truelayer_oauth_state", state);
+
   const params = new URLSearchParams({
     response_type: "code",
     client_id: clientId,
     redirect_uri: REDIRECT_URI,
     scope: SCOPES,
     providers: "uk-ob-all uk-oauth-all",
+    state,
   });
 
   return `${AUTH_BASE}/?${params.toString()}`;
@@ -200,9 +205,13 @@ export async function isBankConnected(): Promise<boolean> {
  * Disconnect the bank — clear all tokens.
  */
 export async function disconnectBank(): Promise<void> {
-  await setSetting("truelayer_access_token", "");
-  await setSetting("truelayer_refresh_token", "");
-  await setSetting("truelayer_token_expires", "");
+  const { execute } = await import("@/lib/database");
+  await execute("DELETE FROM settings WHERE key IN (?, ?, ?, ?)", [
+    "truelayer_access_token",
+    "truelayer_refresh_token",
+    "truelayer_token_expires",
+    "truelayer_oauth_state",
+  ]);
 }
 
 export { REDIRECT_PORT };

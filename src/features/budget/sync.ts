@@ -1,4 +1,5 @@
 import { openUrl } from "@tauri-apps/plugin-opener";
+import { getSetting } from "@/features/debt/db";
 import {
   getAuthLink,
   exchangeCode,
@@ -9,33 +10,39 @@ import {
 } from "./truelayer";
 import { saveBankAccount, saveTransaction, deleteBankAccounts } from "./db";
 
+interface CallbackResult {
+  code: string | null;
+  state: string | null;
+}
+
 /**
  * Start the bank connection flow:
  * 1. Open the auth link in the user's browser
  * 2. Start a temporary local server to capture the callback
- * 3. Exchange the code for tokens
- * 4. Fetch and store accounts
+ * 3. Verify state parameter (CSRF protection)
+ * 4. Exchange the code for tokens
+ * 5. Fetch and store accounts
  */
 export async function startBankConnection(): Promise<{ success: boolean; error?: string }> {
   try {
     const authLink = await getAuthLink();
 
-    // Open auth link in default browser
     await openUrl(authLink);
 
-    // Wait for the callback — we'll poll a simple approach
-    // The user will be redirected to localhost:PORT/callback?code=XXX
-    // We need to capture that code
-    const code = await waitForCallback();
+    const result = await waitForCallback();
 
-    if (!code) {
+    if (!result.code) {
       return { success: false, error: "No authorization code received. Did you complete the bank login?" };
     }
 
-    // Exchange code for tokens
-    await exchangeCode(code);
+    // Verify OAuth state to prevent CSRF
+    const expectedState = await getSetting("truelayer_oauth_state");
+    if (!expectedState || result.state !== expectedState) {
+      return { success: false, error: "Security check failed — OAuth state mismatch. Please try again." };
+    }
 
-    // Fetch and store accounts
+    await exchangeCode(result.code);
+
     await syncAccounts();
 
     return { success: true };
@@ -46,42 +53,41 @@ export async function startBankConnection(): Promise<{ success: boolean; error?:
 }
 
 /**
- * Wait for the OAuth callback by polling localhost.
- * Uses a simple approach: the redirect lands on a page that stores the code.
+ * Wait for the OAuth callback by starting a one-shot HTTP server.
  */
-async function waitForCallback(): Promise<string | null> {
-  // We'll use a different approach for Tauri desktop:
-  // Start a tiny HTTP server via Tauri shell to capture the redirect
+async function waitForCallback(): Promise<CallbackResult> {
   const { Command } = await import("@tauri-apps/plugin-shell");
 
   return new Promise((resolve) => {
-    const timeout = setTimeout(() => resolve(null), 120000); // 2 min timeout
+    const timeout = setTimeout(() => resolve({ code: null, state: null }), 120000);
 
-    // Start a one-shot HTTP server that captures the code and responds with a success page
     const serverScript = `
 import http.server
 import urllib.parse
-import sys
+import html as html_module
 
 class Handler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
         params = urllib.parse.parse_qs(parsed.query)
         code = params.get('code', [None])[0]
+        state = params.get('state', [None])[0]
 
         self.send_response(200)
         self.send_header('Content-Type', 'text/html')
         self.end_headers()
 
         if code:
-            html = '<html><body style="background:#0a0a0f;color:white;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h1>Connected!</h1><p>You can close this tab and return to Life Tracker.</p></div></body></html>'
-            self.wfile.write(html.encode())
-            print(f"CODE:{code}", flush=True)
+            page = '<html><body style="background:#0a0a0f;color:white;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h1>Connected!</h1><p>You can close this tab and return to Life Tracker.</p></div></body></html>'
+            self.wfile.write(page.encode())
+            state_str = state if state else ''
+            print(f"CODE:{code}|STATE:{state_str}", flush=True)
         else:
             error = params.get('error', ['unknown'])[0]
-            html = f'<html><body style="background:#0a0a0f;color:white;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h1>Error</h1><p>{error}</p></div></body></html>'
-            self.wfile.write(html.encode())
-            print(f"ERROR:{error}", flush=True)
+            safe_error = html_module.escape(error)
+            page = f'<html><body style="background:#0a0a0f;color:white;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h1>Error</h1><p>{safe_error}</p></div></body></html>'
+            self.wfile.write(page.encode())
+            print(f"ERROR:{safe_error}", flush=True)
 
     def log_message(self, format, *args):
         pass
@@ -96,16 +102,18 @@ server.handle_request()
     cmd.stdout.on("data", (line: string) => {
       if (line.startsWith("CODE:")) {
         clearTimeout(timeout);
-        resolve(line.replace("CODE:", "").trim());
+        const parts = line.replace("CODE:", "").trim();
+        const [code, statePart] = parts.split("|STATE:");
+        resolve({ code: code.trim(), state: statePart?.trim() ?? null });
       } else if (line.startsWith("ERROR:")) {
         clearTimeout(timeout);
-        resolve(null);
+        resolve({ code: null, state: null });
       }
     });
 
     cmd.on("error", () => {
       clearTimeout(timeout);
-      resolve(null);
+      resolve({ code: null, state: null });
     });
 
     cmd.spawn();
@@ -131,8 +139,7 @@ async function syncAccounts(): Promise<void> {
 }
 
 /**
- * Sync transactions for all connected accounts.
- * Fetches last 90 days by default.
+ * Sync transactions for all connected accounts (last N days).
  */
 export async function syncTransactions(days = 90): Promise<number> {
   const { getBankAccounts } = await import("./db");
@@ -154,7 +161,7 @@ export async function syncTransactions(days = 90): Promise<number> {
 
     for (const tx of transactions) {
       const category = autoCategorise(tx.description, tx.merchant_name ?? null);
-      const txDate = tx.timestamp.split("T")[0]; // YYYY-MM-DD
+      const txDate = tx.timestamp.split("T")[0];
 
       await saveTransaction({
         id: tx.transaction_id,

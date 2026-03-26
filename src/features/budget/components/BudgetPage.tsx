@@ -55,15 +55,18 @@ export function BudgetPage() {
   async function handleConnect() {
     setIsConnecting(true);
     setStatus(null);
-    const result = await startBankConnection();
-    if (result.success) {
-      setStatus({ type: "success", message: "Bank connected! Syncing transactions..." });
-      await initialize();
-      await handleSync();
-    } else {
-      setStatus({ type: "error", message: result.error ?? "Connection failed" });
+    try {
+      const result = await startBankConnection();
+      if (result.success) {
+        setStatus({ type: "success", message: "Bank connected! Syncing transactions..." });
+        await initialize();
+        await handleSync();
+      } else {
+        setStatus({ type: "error", message: result.error ?? "Connection failed" });
+      }
+    } finally {
+      setIsConnecting(false);
     }
-    setIsConnecting(false);
   }
 
   async function handleSync() {
@@ -97,14 +100,16 @@ export function BudgetPage() {
     setMonth(y, m);
   }
 
-  // Calculate totals
+  // Calculate totals — income sums are positive (credits), spending sums are negative (debits)
   const totalIncome = breakdown
     .filter((b) => b.category === "income")
     .reduce((s, b) => s + Math.abs(b.total), 0);
   const totalSpending = breakdown
     .filter((b) => b.category !== "income")
     .reduce((s, b) => s + Math.abs(b.total), 0);
-  const netFlow = totalIncome - totalSpending;
+  // Net flow uses raw signed sums so miscategorised refunds (credits in spending categories) reduce spending correctly
+  const rawTotal = breakdown.reduce((s, b) => s + b.total, 0);
+  const netFlow = rawTotal;
 
   if (isLoading) {
     return (
