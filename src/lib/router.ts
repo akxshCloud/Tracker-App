@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export type Page = "debt" | "schedule" | "budget" | "payments" | "habits" | "goals" | "settings";
+export type Page = "dashboard" | "debt" | "schedule" | "budget" | "payments" | "habits" | "goals" | "settings";
 
 interface RouterStore {
   page: Page;
@@ -8,6 +8,6 @@ interface RouterStore {
 }
 
 export const useRouter = create<RouterStore>((set) => ({
-  page: "debt",
+  page: "dashboard",
   navigate: (page) => set({ page }),
 }));

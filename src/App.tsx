@@ -10,6 +10,7 @@ import { PaymentHistory } from "@/features/debt/components/PaymentHistory";
 import { SettingsPage } from "@/features/settings/SettingsPage";
 import { HabitsPage } from "@/features/habits/components/HabitsPage";
 import { GoalsPage } from "@/features/goals/components/GoalsPage";
+import { DashboardPage } from "@/features/dashboard/components/DashboardPage";
 import { Sidebar } from "@/components/Sidebar";
 import { checkAndNotify } from "@/features/debt/notifications";
 import { UpdateChecker } from "@/components/UpdateChecker";
@@ -61,6 +62,7 @@ function App() {
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
             >
+              {page === "dashboard" && <DashboardPage />}
               {page === "debt" && <DebtDashboard />}
               {page === "schedule" && <PaymentSchedule />}
               {page === "budget" && <BudgetPage />}
