@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { getVersion } from "@tauri-apps/api/app";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -19,6 +20,11 @@ export function SettingsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [appVersion, setAppVersion] = useState("...");
+
+  useEffect(() => {
+    getVersion().then(setAppVersion).catch(() => setAppVersion("unknown"));
+  }, []);
   const [bgNotifyEnabled, setBgNotifyEnabled] = useState(false);
   const [bgNotifyLoading, setBgNotifyLoading] = useState(false);
 
@@ -141,7 +147,8 @@ export function SettingsPage() {
                   }
                 } catch (err) {
                   console.error(err);
-                  setStatus({ type: "error", message: "Failed to update background reminders." });
+                  const msg = err instanceof Error ? err.message : String(err);
+                  setStatus({ type: "error", message: `Background reminders failed: ${msg}` });
                 } finally {
                   setBgNotifyLoading(false);
                 }
@@ -225,7 +232,7 @@ export function SettingsPage() {
         <CardContent className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Version</span>
-            <Badge variant="secondary">0.1.0</Badge>
+            <Badge variant="secondary">v{appVersion}</Badge>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Stack</span>

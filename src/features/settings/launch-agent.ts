@@ -100,33 +100,61 @@ export async function installLaunchAgent(): Promise<void> {
   const scriptPath = await getScriptPath();
   const appData = await appDataDir();
 
-  if (!(await exists(appData))) {
-    await mkdir(appData, { recursive: true });
+  try {
+    if (!(await exists(appData))) {
+      await mkdir(appData, { recursive: true });
+    }
+  } catch (e) {
+    throw new Error(`Failed to create app data dir: ${e}`);
   }
 
-  await writeTextFile(scriptPath, SCRIPT_CONTENT);
+  try {
+    await writeTextFile(scriptPath, SCRIPT_CONTENT);
+  } catch (e) {
+    throw new Error(`Failed to write script: ${e}`);
+  }
 
-  // Make script executable — scoped args
-  const chmod = Command.create("chmod", ["+x", scriptPath]);
-  await chmod.execute();
+  try {
+    const chmod = Command.create("chmod", ["+x", scriptPath]);
+    const chmodResult = await chmod.execute();
+    if (chmodResult.code !== 0) {
+      throw new Error(`chmod failed: ${chmodResult.stderr}`);
+    }
+  } catch (e) {
+    throw new Error(`Failed to chmod script: ${e}`);
+  }
 
-  // Write the plist
   const plistPath = await getPlistPath();
   const home = await homeDir();
   const launchAgentsDir = `${home}/Library/LaunchAgents`;
 
-  if (!(await exists(launchAgentsDir))) {
-    await mkdir(launchAgentsDir, { recursive: true });
+  try {
+    if (!(await exists(launchAgentsDir))) {
+      await mkdir(launchAgentsDir, { recursive: true });
+    }
+  } catch (e) {
+    throw new Error(`Failed to create LaunchAgents dir: ${e}`);
   }
 
-  await writeTextFile(plistPath, generatePlist(scriptPath));
+  try {
+    await writeTextFile(plistPath, generatePlist(scriptPath));
+  } catch (e) {
+    throw new Error(`Failed to write plist: ${e}`);
+  }
 
-  // Load the agent using modern launchctl (bootstrap instead of deprecated load)
-  const bootstrap = Command.create("bash", [
-    "-c",
-    `launchctl bootstrap gui/$(id -u) "${plistPath}"`,
-  ]);
-  await bootstrap.execute();
+  try {
+    const bootstrap = Command.create("bash", [
+      "-c",
+      `launchctl bootstrap gui/$(id -u) "${plistPath}"`,
+    ]);
+    const result = await bootstrap.execute();
+    // Exit code 37 means already loaded — that's fine
+    if (result.code !== 0 && result.code !== 37) {
+      throw new Error(`launchctl failed (${result.code}): ${result.stderr}`);
+    }
+  } catch (e) {
+    throw new Error(`Failed to load agent: ${e}`);
+  }
 }
 
 export async function uninstallLaunchAgent(): Promise<void> {
