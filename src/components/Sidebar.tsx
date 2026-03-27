@@ -22,6 +22,10 @@ interface NavItem {
   disabled?: boolean;
 }
 
+const topNav: NavItem[] = [
+  { page: "dashboard", label: "Dashboard", Icon: LayoutDashboard },
+];
+
 const mainNav: NavItem[] = [
   { page: "debt", label: "Debt Tracker", Icon: CreditCard },
   { page: "schedule", label: "Payment Plan", Icon: CalendarClock },
@@ -32,10 +36,6 @@ const mainNav: NavItem[] = [
 const lifeNav: NavItem[] = [
   { page: "habits", label: "Habits", Icon: Dumbbell },
   { page: "goals", label: "Goals", Icon: Target },
-];
-
-const futureNav: NavItem[] = [
-  { label: "Dashboard", Icon: LayoutDashboard, disabled: true },
 ];
 
 const bottomNav: NavItem[] = [
@@ -57,6 +57,17 @@ export function Sidebar() {
 
       {/* Main nav */}
       <nav className="flex flex-1 flex-col items-center gap-0.5 pt-1">
+        {topNav.map((item) => (
+          <NavButton
+            key={item.label}
+            item={item}
+            active={!!item.page && page === item.page}
+            onClick={() => item.page && navigate(item.page)}
+          />
+        ))}
+
+        <div className="w-8 h-px bg-sidebar-border my-3" />
+
         {mainNav.map((item) => (
           <NavButton
             key={item.label}
@@ -74,17 +85,6 @@ export function Sidebar() {
             item={item}
             active={!!item.page && page === item.page}
             onClick={() => item.page && navigate(item.page)}
-          />
-        ))}
-
-        <div className="w-8 h-px bg-sidebar-border my-3" />
-
-        {futureNav.map((item) => (
-          <NavButton
-            key={item.label}
-            item={item}
-            active={false}
-            onClick={() => {}}
           />
         ))}
       </nav>
