@@ -38,23 +38,31 @@ function formatValue(value: number, targetType: string, unit: string | null): st
   return `${value}${u}`;
 }
 
+async function safeQuery<T>(sql: string, params: unknown[]): Promise<T[]> {
+  try {
+    return await query<T>(sql, params);
+  } catch {
+    return [];
+  }
+}
+
 export async function getRecentActivity(limit = 10): Promise<ActivityItem[]> {
   const [completions, payments, goalUpdates] = await Promise.all([
-    query<HabitCompletionRow>(
+    safeQuery<HabitCompletionRow>(
       `SELECT h.name as habit_name, h.color as habit_color, hc.created_at
        FROM habit_completions hc
        JOIN habits h ON h.id = hc.habit_id
        ORDER BY hc.created_at DESC LIMIT ?`,
       [limit],
     ),
-    query<PaymentRow>(
+    safeQuery<PaymentRow>(
       `SELECT d.name as debt_name, p.amount, p.created_at
        FROM payments p
        JOIN debts d ON d.id = p.debt_id
        ORDER BY p.created_at DESC LIMIT ?`,
       [limit],
     ),
-    query<GoalUpdateRow>(
+    safeQuery<GoalUpdateRow>(
       `SELECT g.name as goal_name, g.color as goal_color, g.target_type, g.unit,
               gu.previous_value, gu.new_value, gu.created_at
        FROM goal_updates gu
