@@ -49,7 +49,7 @@ export async function getTransactions(
   const params: string[] = [];
 
   if (from && to) {
-    sql += " WHERE transaction_date >= ? AND transaction_date <= ?";
+    sql += " WHERE transaction_date >= ? AND transaction_date < ?";
     params.push(from, to);
   } else if (from) {
     sql += " WHERE transaction_date >= ?";
