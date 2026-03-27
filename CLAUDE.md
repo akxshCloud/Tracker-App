@@ -17,7 +17,9 @@ A native macOS desktop application (Tauri v2 + React + TypeScript) that serves a
 - **Settings**: Data export/import (JSON), reset all data, background notification toggle
 - **Standalone App**: Installed to /Applications, launches from Launchpad/Spotlight
 - **Auto-Updater**: Checks GitHub Releases on launch, one-click update. CI builds on version tags.
-- **Budget Planner**: TrueLayer bank connection, auto-categorised transactions (needs/wants/savings/debt/income), monthly breakdown
+- **Budget Planner**: TrueLayer bank connection, auto-categorised transactions (needs/wants/savings/debt/income), monthly breakdown, budget limits per category with over-budget warnings
+- **Smart Categorisation**: 200+ UK merchant patterns, fuzzy matching, user learning from corrections, confidence scoring
+- **Review Flow**: Bell notification for uncategorised transactions, slide-out review panel, auto-categorise button
 - **UI**: Premium blue fintech aesthetic (Revolut/Stripe inspired), dark mode, Geist fonts, framer-motion animations
 
 ### Roadmap (agreed 2026-03-25)
@@ -129,3 +131,4 @@ settings (key, value) — stores onboarding_complete, monthly_budget
 - **v0.2.0** — Debt dashboard, insights, payment recording, app shell, UI overhaul, payment schedule, edit/delete debts, standalone app + auto-updater
 - **v0.3.0** — Payment reminders (native macOS notifications), background notifications (Launch Agent), What-if slider redesign
 - **v0.4.0** — Budget planner with TrueLayer bank connection, auto-categorisation, monthly breakdown
+- **v0.5.0** — Smart categorisation engine (200+ UK merchants, user learning, fuzzy matching), budget limits per category, uncategorised review flow with bell notification
