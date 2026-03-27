@@ -314,6 +314,57 @@ pub fn run() {
             ",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 5,
+            description: "create_goals_tables",
+            sql: "
+                CREATE TABLE IF NOT EXISTS goals (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    description TEXT,
+                    category TEXT NOT NULL DEFAULT 'personal',
+                    icon TEXT NOT NULL DEFAULT 'target',
+                    color TEXT NOT NULL DEFAULT 'blue',
+                    target_type TEXT NOT NULL DEFAULT 'percentage',
+                    target_value REAL NOT NULL DEFAULT 100,
+                    current_value REAL NOT NULL DEFAULT 0,
+                    unit TEXT,
+                    target_date TEXT,
+                    started_at TEXT NOT NULL DEFAULT (date('now')),
+                    completed_at TEXT,
+                    archived INTEGER NOT NULL DEFAULT 0,
+                    sort_order INTEGER NOT NULL DEFAULT 0,
+                    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+                );
+
+                CREATE TABLE IF NOT EXISTS goal_milestones (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    goal_id INTEGER NOT NULL,
+                    name TEXT NOT NULL,
+                    target_value REAL NOT NULL,
+                    completed_at TEXT,
+                    sort_order INTEGER NOT NULL DEFAULT 0,
+                    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                    FOREIGN KEY (goal_id) REFERENCES goals(id) ON DELETE CASCADE
+                );
+
+                CREATE TABLE IF NOT EXISTS goal_updates (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    goal_id INTEGER NOT NULL,
+                    previous_value REAL NOT NULL,
+                    new_value REAL NOT NULL,
+                    notes TEXT,
+                    update_date TEXT NOT NULL DEFAULT (date('now')),
+                    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                    FOREIGN KEY (goal_id) REFERENCES goals(id) ON DELETE CASCADE
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_goal_updates_goal ON goal_updates(goal_id);
+                CREATE INDEX IF NOT EXISTS idx_goal_updates_date ON goal_updates(update_date);
+            ",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
