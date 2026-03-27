@@ -280,6 +280,40 @@ pub fn run() {
             ",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 4,
+            description: "create_habits_tables",
+            sql: "
+                CREATE TABLE IF NOT EXISTS habits (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    description TEXT,
+                    icon TEXT NOT NULL DEFAULT 'circle-check',
+                    color TEXT NOT NULL DEFAULT 'blue',
+                    frequency_type TEXT NOT NULL DEFAULT 'daily',
+                    frequency_value TEXT,
+                    category TEXT NOT NULL DEFAULT 'general',
+                    sort_order INTEGER NOT NULL DEFAULT 0,
+                    archived INTEGER NOT NULL DEFAULT 0,
+                    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+                );
+
+                CREATE TABLE IF NOT EXISTS habit_completions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    habit_id INTEGER NOT NULL,
+                    completed_date TEXT NOT NULL,
+                    notes TEXT,
+                    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                    FOREIGN KEY (habit_id) REFERENCES habits(id) ON DELETE CASCADE,
+                    UNIQUE(habit_id, completed_date)
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_habit_completions_date ON habit_completions(completed_date);
+                CREATE INDEX IF NOT EXISTS idx_habit_completions_habit ON habit_completions(habit_id);
+            ",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

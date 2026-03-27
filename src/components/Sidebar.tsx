@@ -29,9 +29,12 @@ const mainNav: NavItem[] = [
   { page: "payments", label: "Payment History", Icon: History },
 ];
 
+const lifeNav: NavItem[] = [
+  { page: "habits", label: "Habits", Icon: Dumbbell },
+];
+
 const futureNav: NavItem[] = [
   { label: "Dashboard", Icon: LayoutDashboard, disabled: true },
-  { label: "Habits", Icon: Dumbbell, disabled: true },
   { label: "Goals", Icon: Target, disabled: true },
 ];
 
@@ -55,6 +58,17 @@ export function Sidebar() {
       {/* Main nav */}
       <nav className="flex flex-1 flex-col items-center gap-0.5 pt-1">
         {mainNav.map((item) => (
+          <NavButton
+            key={item.label}
+            item={item}
+            active={!!item.page && page === item.page}
+            onClick={() => item.page && navigate(item.page)}
+          />
+        ))}
+
+        <div className="w-8 h-px bg-sidebar-border my-3" />
+
+        {lifeNav.map((item) => (
           <NavButton
             key={item.label}
             item={item}
