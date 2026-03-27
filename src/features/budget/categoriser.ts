@@ -26,11 +26,12 @@ export async function categoriseTransaction(
   merchantName: string | null,
   amount: number,
   transactionType: "DEBIT" | "CREDIT",
+  cachedRules?: UserRule[],
 ): Promise<CategorisationResult> {
   const text = normalise(`${merchantName ?? ""} ${description}`);
 
   // 1. Check user-defined rules first
-  const userRule = await matchUserRule(text);
+  const userRule = await matchUserRule(text, cachedRules);
   if (userRule) {
     return { category: userRule.category, confidence: 1.0, source: "user-rule" };
   }
@@ -57,15 +58,19 @@ function normalise(text: string): string {
   return text
     .toLowerCase()
     .replace(/[*#\-_\.\/\\]/g, " ")  // Replace special chars with spaces
-    .replace(/\b\w{8,}\d{4,}\b/g, "") // Remove long alphanumeric IDs
+    .replace(/\b[a-z]*\d{6,}[a-z\d]*\b/g, "") // Remove reference codes with 6+ consecutive digits
     .replace(/\s+/g, " ")
     .trim();
 }
 
 // --- User Rules ---
 
-async function matchUserRule(text: string): Promise<UserRule | null> {
-  const rules = await query<UserRule>("SELECT pattern, category FROM category_rules ORDER BY LENGTH(pattern) DESC");
+async function loadUserRules(): Promise<UserRule[]> {
+  return query<UserRule>("SELECT pattern, category FROM category_rules ORDER BY LENGTH(pattern) DESC");
+}
+
+async function matchUserRule(text: string, cachedRules?: UserRule[]): Promise<UserRule | null> {
+  const rules = cachedRules ?? await loadUserRules();
 
   for (const rule of rules) {
     if (text.includes(rule.pattern)) {
@@ -87,10 +92,11 @@ export async function learnFromCorrection(
   const text = normalise(`${merchantName ?? ""} ${description}`);
 
   // Extract the most distinctive part (first 2-3 words, skip numbers)
-  const words = text.split(" ").filter((w) => w.length > 1 && !/^\d+$/.test(w));
+  const words = text.split(" ").filter((w) => w.length >= 3 && !/^\d+$/.test(w));
   const pattern = words.slice(0, 3).join(" ");
 
-  if (!pattern) return;
+  // Minimum pattern quality: at least 6 chars and 2 meaningful words
+  if (!pattern || pattern.length < 6 || words.filter((w) => w.length >= 3).length < 2) return;
 
   await execute(
     "INSERT OR REPLACE INTO category_rules (pattern, category) VALUES (?, ?)",
@@ -184,6 +190,8 @@ export async function recategoriseAll(): Promise<number> {
     transaction_type: string;
   }>("SELECT id, description, merchant_name, amount, transaction_type FROM transactions WHERE budget_category = 'uncategorised' AND user_categorised = 0");
 
+  // Load rules ONCE before the loop to avoid N+1 queries
+  const rules = await loadUserRules();
   let updated = 0;
 
   for (const tx of uncategorised) {
@@ -192,6 +200,7 @@ export async function recategoriseAll(): Promise<number> {
       tx.merchant_name,
       tx.amount,
       tx.transaction_type as "DEBIT" | "CREDIT",
+      rules,
     );
 
     if (result.category !== "uncategorised") {

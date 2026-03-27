@@ -14,7 +14,7 @@ import { BUDGET_CATEGORIES, type BudgetCategory } from "../types";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 export function ReviewBell() {
-  const { uncategorisedCount } = useBudgetStore();
+  const uncategorisedCount = useBudgetStore((s) => s.uncategorisedCount);
   const [open, setOpen] = useState(false);
 
   if (uncategorisedCount === 0) return null;
@@ -71,10 +71,9 @@ function ReviewList({ onDone }: { onDone: () => void }) {
 
   async function handleCategorise(category: BudgetCategory) {
     await recategorise(tx, category);
-    // Move to next or stay if we're at the end
-    if (currentIndex >= uncategorised.length - 1) {
-      setCurrentIndex(0);
-    }
+    // After categorisation, the uncategorised array shrinks by 1.
+    // Clamp the index so we don't skip the next item.
+    setCurrentIndex((i) => Math.min(i, Math.max(0, uncategorised.length - 2)));
   }
 
   return (

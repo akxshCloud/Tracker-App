@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -48,6 +48,9 @@ export function BudgetPage() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [editingBudget, setEditingBudget] = useState<BudgetCategory | null>(null);
+  const [budgetInput, setBudgetInput] = useState("");
+  const budgetInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     initialize();
@@ -258,14 +261,10 @@ export function BudgetPage() {
                     </div>
                     <button
                       className="w-full h-2 bg-white/5 rounded-full overflow-hidden cursor-pointer hover:bg-white/10 transition-colors"
-                      onClick={async () => {
-                        const input = prompt(`Set monthly budget for ${cat.label} (£):`, limit > 0 ? String(limit) : "");
-                        if (input !== null) {
-                          const val = parseFloat(input);
-                          if (!isNaN(val) && val >= 0) {
-                            await setBudgetLimit(cat.value, val);
-                          }
-                        }
+                      onClick={() => {
+                        setEditingBudget(cat.value);
+                        setBudgetInput(limit > 0 ? String(limit) : "");
+                        setTimeout(() => budgetInputRef.current?.focus(), 50);
                       }}
                     >
                       <div
@@ -275,7 +274,40 @@ export function BudgetPage() {
                         style={{ width: `${limit > 0 ? Math.min(percentOfLimit, 100) : Math.min((total / Math.max(...breakdown.filter(b => b.category !== "income").map((b) => Math.abs(b.total)), 1)) * 100, 100)}%` }}
                       />
                     </button>
-                    {overBudget && (
+                    {editingBudget === cat.value && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-muted-foreground">£</span>
+                        <input
+                          ref={budgetInputRef}
+                          type="number"
+                          step="10"
+                          min="0"
+                          className="w-24 h-6 bg-background/80 border border-border/50 rounded px-2 text-xs font-mono focus:outline-none focus:border-primary"
+                          value={budgetInput}
+                          onChange={(e) => setBudgetInput(e.target.value)}
+                          onBlur={async () => {
+                            const val = parseFloat(budgetInput);
+                            if (!isNaN(val) && val >= 0) {
+                              await setBudgetLimit(cat.value, val);
+                            }
+                            setEditingBudget(null);
+                          }}
+                          onKeyDown={async (e) => {
+                            if (e.key === "Enter") {
+                              const val = parseFloat(budgetInput);
+                              if (!isNaN(val) && val >= 0) {
+                                await setBudgetLimit(cat.value, val);
+                              }
+                              setEditingBudget(null);
+                            } else if (e.key === "Escape") {
+                              setEditingBudget(null);
+                            }
+                          }}
+                        />
+                        <span className="text-[10px] text-muted-foreground">/ month</span>
+                      </div>
+                    )}
+                    {overBudget && editingBudget !== cat.value && (
                       <p className="text-[10px] text-destructive">
                         {formatCurrency(total - limit)} over budget
                       </p>
