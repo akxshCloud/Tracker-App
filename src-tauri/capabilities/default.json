@@ -30,11 +30,12 @@
         { "path": "$HOME/Library/LaunchAgents/**" }
       ]
     },
+    "process:default",
+    "process:allow-restart",
     "shell:default",
     {
       "identifier": "shell:allow-execute",
       "allow": [
-        { "name": "chmod", "cmd": "chmod", "args": ["+x"] },
         { "name": "bash", "cmd": "bash", "args": true }
       ]
     }
