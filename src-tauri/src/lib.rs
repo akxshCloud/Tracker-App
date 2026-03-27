@@ -1,12 +1,111 @@
 use tauri_plugin_sql::{Migration, MigrationKind};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpListener;
+use std::collections::HashMap;
 
 #[derive(serde::Serialize)]
 struct OAuthCallback {
     code: Option<String>,
     state: Option<String>,
     error: Option<String>,
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
+struct TokenResponse {
+    access_token: String,
+    refresh_token: Option<String>,
+    expires_in: u64,
+    token_type: Option<String>,
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
+struct TrueLayerError {
+    error: Option<String>,
+    error_description: Option<String>,
+}
+
+/// Exchange an OAuth code for tokens — runs in Rust to bypass webview CSP
+#[tauri::command]
+async fn exchange_truelayer_token(
+    client_id: String,
+    client_secret: String,
+    code: String,
+    redirect_uri: String,
+) -> Result<TokenResponse, String> {
+    let client = reqwest::Client::new();
+
+    let mut params = HashMap::new();
+    params.insert("grant_type", "authorization_code");
+    params.insert("client_id", &client_id);
+    params.insert("client_secret", &client_secret);
+    params.insert("redirect_uri", &redirect_uri);
+    params.insert("code", &code);
+
+    let response = client
+        .post("https://auth.truelayer.com/connect/token")
+        .form(&params)
+        .send()
+        .await
+        .map_err(|e| format!("Network error: {}", e))?;
+
+    if !response.status().is_success() {
+        let status = response.status();
+        let body = response.text().await.unwrap_or_default();
+        return Err(format!("Token exchange failed ({}): {}", status, body));
+    }
+
+    response.json::<TokenResponse>().await.map_err(|e| format!("Parse error: {}", e))
+}
+
+/// Refresh an access token — runs in Rust to bypass webview CSP
+#[tauri::command]
+async fn refresh_truelayer_token(
+    client_id: String,
+    client_secret: String,
+    refresh_token: String,
+) -> Result<TokenResponse, String> {
+    let client = reqwest::Client::new();
+
+    let mut params = HashMap::new();
+    params.insert("grant_type", "refresh_token");
+    params.insert("client_id", &client_id);
+    params.insert("client_secret", &client_secret);
+    params.insert("refresh_token", &refresh_token);
+
+    let response = client
+        .post("https://auth.truelayer.com/connect/token")
+        .form(&params)
+        .send()
+        .await
+        .map_err(|e| format!("Network error: {}", e))?;
+
+    if !response.status().is_success() {
+        let body = response.text().await.unwrap_or_default();
+        return Err(format!("Token refresh failed: {}", body));
+    }
+
+    response.json::<TokenResponse>().await.map_err(|e| format!("Parse error: {}", e))
+}
+
+/// Fetch data from TrueLayer API — runs in Rust to bypass webview CSP
+#[tauri::command]
+async fn truelayer_api_get(url: String, access_token: String) -> Result<String, String> {
+    let client = reqwest::Client::new();
+
+    let response = client
+        .get(&url)
+        .header("Authorization", format!("Bearer {}", access_token))
+        .send()
+        .await
+        .map_err(|e| format!("API request failed: {}", e))?;
+
+    if !response.status().is_success() {
+        let status = response.status();
+        let body = response.text().await.unwrap_or_default();
+        return Err(format!("API error ({}): {}", status, body));
+    }
+
+    response.text().await.map_err(|e| format!("Read error: {}", e))
 }
 
 #[tauri::command]
@@ -178,7 +277,12 @@ pub fn run() {
                 .add_migrations("sqlite:tracker.db", migrations)
                 .build(),
         )
-        .invoke_handler(tauri::generate_handler![wait_for_oauth_callback])
+        .invoke_handler(tauri::generate_handler![
+            wait_for_oauth_callback,
+            exchange_truelayer_token,
+            refresh_truelayer_token,
+            truelayer_api_get
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
