@@ -85,6 +85,6 @@ export async function getRecentActivity(limit = 10): Promise<ActivityItem[]> {
     })),
   ];
 
-  items.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+  items.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   return items.slice(0, limit);
 }

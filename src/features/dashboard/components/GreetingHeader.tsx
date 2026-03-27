@@ -1,7 +1,6 @@
-import { useMemo } from "react";
-
 interface GreetingHeaderProps {
   habitsRemaining: number;
+  habitsTotal: number;
 }
 
 function getGreeting(): string {
@@ -20,20 +19,18 @@ function getFormattedDate(): string {
   }).format(new Date());
 }
 
-export function GreetingHeader({ habitsRemaining }: GreetingHeaderProps) {
-  const greeting = useMemo(getGreeting, []);
-  const dateStr = useMemo(getFormattedDate, []);
+export function GreetingHeader({ habitsRemaining, habitsTotal }: GreetingHeaderProps) {
+  const greeting = getGreeting();
+  const dateStr = getFormattedDate();
 
-  // Find nearest due payment
-  const nudge = useMemo(() => {
+  let nudge: string | null = null;
+  if (habitsTotal > 0) {
     if (habitsRemaining > 0) {
-      return `You have ${habitsRemaining} habit${habitsRemaining !== 1 ? "s" : ""} left today`;
+      nudge = `You have ${habitsRemaining} habit${habitsRemaining !== 1 ? "s" : ""} left today`;
+    } else {
+      nudge = "All habits done today!";
     }
-    if (habitsRemaining === 0) {
-      return "All habits done today!";
-    }
-    return null;
-  }, [habitsRemaining]);
+  }
 
   return (
     <div className="space-y-1">

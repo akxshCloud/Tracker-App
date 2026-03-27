@@ -46,7 +46,7 @@ export function GoalCard({ goal, milestones, onEdit, onUpdateProgress, onViewDet
         "card-elevated rounded-2xl p-6 flex flex-col gap-4 cursor-pointer transition-all hover:border-border/30",
         complete && "ring-1",
       )}
-      style={complete ? { ringColor: "oklch(0.65 0.18 155)" } as React.CSSProperties : undefined}
+      style={complete ? { "--tw-ring-color": "oklch(0.65 0.18 155)" } as React.CSSProperties : undefined}
       onClick={() => onViewDetails(goal)}
     >
       {/* Top: category + name + menu */}

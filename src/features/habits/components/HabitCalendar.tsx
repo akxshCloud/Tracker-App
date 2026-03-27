@@ -87,18 +87,17 @@ export function HabitCalendar() {
       <div className="overflow-x-auto">
         <div className="inline-flex flex-col gap-0.5" style={{ minWidth: "fit-content" }}>
           {/* Month labels */}
-          <div className="flex gap-0.5 ml-7 mb-1">
+          <div className="relative ml-7 mb-1" style={{ height: "1rem" }}>
             {monthPositions.map((mp, i) => (
               <span
                 key={i}
                 className="text-[10px] text-muted-foreground absolute"
-                style={{ marginLeft: mp.x * 13 }}
+                style={{ left: mp.x * 13 }}
               >
                 {mp.label}
               </span>
             ))}
           </div>
-          <div className="h-3" />
 
           {/* Day rows */}
           <div className="flex gap-0.5">

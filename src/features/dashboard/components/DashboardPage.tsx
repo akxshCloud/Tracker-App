@@ -49,12 +49,14 @@ export function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      initDebt(),
-      initBudget(),
-      initHabits(),
-      initGoals(),
-    ]).then(async () => {
+    // Only initialise stores that haven't loaded yet to avoid resetting isLoading
+    const promises: Promise<void>[] = [];
+    if (useDebtStore.getState().isLoading) promises.push(initDebt());
+    if (useBudgetStore.getState().isLoading) promises.push(initBudget());
+    if (useHabitStore.getState().isLoading) promises.push(initHabits());
+    if (useGoalStore.getState().isLoading) promises.push(initGoals());
+
+    Promise.all(promises).then(async () => {
       const items = await getRecentActivity(8);
       setActivity(items);
       setIsLoading(false);
@@ -74,9 +76,10 @@ export function DashboardPage() {
 
   // Today's habits
   const today = todayStr();
+  const activeHabits = useMemo(() => habits.filter((h) => !h.archived), [habits]);
   const scheduledHabits = useMemo(
-    () => getScheduledHabitsForDate(habits, today),
-    [habits, today],
+    () => getScheduledHabitsForDate(activeHabits, today),
+    [activeHabits, today],
   );
   const completedToday = useMemo(() => {
     const set = new Set<number>();
@@ -117,7 +120,7 @@ export function DashboardPage() {
     <motion.div className="space-y-6" variants={stagger} initial="initial" animate="animate">
       {/* Greeting */}
       <motion.div variants={fadeIn}>
-        <GreetingHeader habitsRemaining={habitsTotal - habitsCompleted} />
+        <GreetingHeader habitsRemaining={habitsTotal - habitsCompleted} habitsTotal={habitsTotal} />
       </motion.div>
 
       {/* Top row: habits + goals */}
