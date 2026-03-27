@@ -13,6 +13,7 @@ import {
   Target,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { ReviewBell } from "@/features/budget/components/ReviewPanel";
 
 interface NavItem {
   page?: Page;
@@ -75,7 +76,8 @@ export function Sidebar() {
       </nav>
 
       {/* Bottom nav */}
-      <nav className="flex flex-col items-center gap-0.5">
+      <nav className="flex flex-col items-center gap-1">
+        <ReviewBell />
         {bottomNav.map((item) => (
           <NavButton
             key={item.label}

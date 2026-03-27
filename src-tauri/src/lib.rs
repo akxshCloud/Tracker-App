@@ -264,6 +264,22 @@ pub fn run() {
             ",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 3,
+            description: "create_category_rules_and_budgets",
+            sql: "
+                CREATE TABLE IF NOT EXISTS category_rules (
+                    pattern TEXT PRIMARY KEY,
+                    category TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS budget_limits (
+                    category TEXT PRIMARY KEY,
+                    monthly_limit REAL NOT NULL
+                );
+            ",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

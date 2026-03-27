@@ -41,7 +41,8 @@ export function BudgetPage() {
   const {
     isConnected, isLoading, transactions, breakdown,
     selectedMonth, initialize, setMonth, loadTransactions,
-    loadBreakdown, recategorise,
+    loadBreakdown, recategorise, budgetLimits, setBudgetLimit,
+    uncategorisedCount, smartRecategorise,
   } = useBudgetStore();
 
   const [isSyncing, setIsSyncing] = useState(false);
@@ -208,43 +209,103 @@ export function BudgetPage() {
             </div>
           </motion.div>
 
-          {/* Category breakdown */}
+          {/* Uncategorised banner */}
+          {uncategorisedCount > 0 && (
+            <motion.div variants={fadeIn} className="flex items-center justify-between rounded-xl border border-amber-500/20 bg-amber-500/5 px-5 py-3">
+              <div>
+                <p className="text-sm font-semibold text-amber-400">{uncategorisedCount} uncategorised transactions</p>
+                <p className="text-xs text-muted-foreground">Click the bell in the sidebar to review them</p>
+              </div>
+              <Button variant="outline" size="sm" className="text-xs gap-1.5 border-amber-500/30" onClick={async () => {
+                const count = await smartRecategorise();
+                setStatus({ type: "success", message: `Auto-categorised ${count} transactions` });
+              }}>
+                Auto-categorise
+              </Button>
+            </motion.div>
+          )}
+
+          {/* Category breakdown with budget limits */}
           <motion.div variants={fadeIn} className="card-elevated rounded-2xl p-6 space-y-4">
-            <h3 className="text-sm font-semibold">Breakdown by Category</h3>
-            <div className="space-y-3">
-              {BUDGET_CATEGORIES.filter((c) => c.value !== "uncategorised").map((cat) => {
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold">Spending by Category</h3>
+              <p className="text-[10px] text-muted-foreground">Click a bar to set a budget limit</p>
+            </div>
+            <div className="space-y-4">
+              {BUDGET_CATEGORIES.filter((c) => c.value !== "uncategorised" && c.value !== "income").map((cat) => {
                 const data = breakdown.find((b) => b.category === cat.value);
                 const total = data ? Math.abs(data.total) : 0;
                 const count = data?.count ?? 0;
-                const maxTotal = Math.max(...breakdown.map((b) => Math.abs(b.total)), 1);
-                const percent = (total / maxTotal) * 100;
+                const limit = budgetLimits.find((l) => l.category === cat.value)?.monthly_limit ?? 0;
+                const percentOfLimit = limit > 0 ? (total / limit) * 100 : 0;
+                const overBudget = limit > 0 && total > limit;
 
                 return (
                   <div key={cat.value} className="space-y-1.5">
                     <div className="flex items-center justify-between text-sm">
                       <span className={`font-medium ${cat.color}`}>{cat.label}</span>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-3">
                         <span className="text-xs text-muted-foreground">{count} txns</span>
-                        <span className="font-mono tabular-nums font-semibold">{formatCurrency(total)}</span>
+                        <span className={`font-mono tabular-nums font-semibold ${overBudget ? "text-destructive" : ""}`}>
+                          {formatCurrency(total)}
+                        </span>
+                        {limit > 0 && (
+                          <span className="text-[10px] text-muted-foreground font-mono">
+                            / {formatCurrency(limit)}
+                          </span>
+                        )}
                       </div>
                     </div>
-                    <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                    <button
+                      className="w-full h-2 bg-white/5 rounded-full overflow-hidden cursor-pointer hover:bg-white/10 transition-colors"
+                      onClick={async () => {
+                        const input = prompt(`Set monthly budget for ${cat.label} (£):`, limit > 0 ? String(limit) : "");
+                        if (input !== null) {
+                          const val = parseFloat(input);
+                          if (!isNaN(val) && val >= 0) {
+                            await setBudgetLimit(cat.value, val);
+                          }
+                        }
+                      }}
+                    >
                       <div
-                        className="h-full bg-primary/40 rounded-full transition-all duration-500"
-                        style={{ width: `${Math.min(percent, 100)}%` }}
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          overBudget ? "bg-destructive/70" : limit > 0 ? "bg-primary/50" : "bg-primary/30"
+                        }`}
+                        style={{ width: `${limit > 0 ? Math.min(percentOfLimit, 100) : Math.min((total / Math.max(...breakdown.filter(b => b.category !== "income").map((b) => Math.abs(b.total)), 1)) * 100, 100)}%` }}
                       />
-                    </div>
+                    </button>
+                    {overBudget && (
+                      <p className="text-[10px] text-destructive">
+                        {formatCurrency(total - limit)} over budget
+                      </p>
+                    )}
                   </div>
                 );
               })}
 
-              {/* Uncategorised if any */}
-              {breakdown.some((b) => b.category === "uncategorised") && (
+              {/* Income row */}
+              {(() => {
+                const incomeData = breakdown.find((b) => b.category === "income");
+                const incomeTotal = incomeData ? Math.abs(incomeData.total) : 0;
+                return incomeTotal > 0 ? (
+                  <>
+                    <Separator className="bg-border/30" />
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-positive font-medium">Income</span>
+                      <span className="font-mono tabular-nums font-semibold text-positive">{formatCurrency(incomeTotal)}</span>
+                    </div>
+                  </>
+                ) : null;
+              })()}
+
+              {/* Uncategorised */}
+              {uncategorisedCount > 0 && (
                 <>
                   <Separator className="bg-border/30" />
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Uncategorised</span>
-                    <span className="font-mono tabular-nums">
+                    <span className="text-amber-400">Uncategorised</span>
+                    <span className="font-mono tabular-nums text-amber-400">
                       {formatCurrency(Math.abs(breakdown.find((b) => b.category === "uncategorised")?.total ?? 0))}
                     </span>
                   </div>
@@ -274,7 +335,7 @@ export function BudgetPage() {
                         </span>
                         <Select
                           value={tx.budget_category}
-                          onValueChange={(v) => recategorise(tx.id, v as BudgetCategory)}
+                          onValueChange={(v) => recategorise(tx, v as BudgetCategory)}
                         >
                           <SelectTrigger className="h-5 w-auto gap-1 border-0 bg-transparent p-0 text-[10px] text-muted-foreground hover:text-foreground">
                             <SelectValue />

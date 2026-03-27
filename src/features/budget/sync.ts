@@ -6,9 +6,9 @@ import {
   exchangeCode,
   fetchAccounts,
   fetchTransactions,
-  autoCategorise,
   REDIRECT_PORT,
 } from "./truelayer";
+import { categoriseTransaction } from "./categoriser";
 import { saveBankAccount, saveTransaction, deleteBankAccounts } from "./db";
 
 interface OAuthCallback {
@@ -96,7 +96,13 @@ export async function syncTransactions(days = 90): Promise<number> {
     const transactions = await fetchTransactions(account.id, fromStr, toStr);
 
     for (const tx of transactions) {
-      const category = autoCategorise(tx.description, tx.merchant_name ?? null);
+      const result = await categoriseTransaction(
+        tx.description,
+        tx.merchant_name ?? null,
+        tx.amount,
+        tx.transaction_type,
+      );
+      const category = result.category;
       const txDate = tx.timestamp.split("T")[0];
 
       await saveTransaction({
