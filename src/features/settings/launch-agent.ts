@@ -115,7 +115,7 @@ export async function installLaunchAgent(): Promise<void> {
   }
 
   try {
-    const chmod = Command.create("chmod", ["+x", scriptPath]);
+    const chmod = Command.create("bash", ["-c", `chmod +x "${scriptPath}"`]);
     const chmodResult = await chmod.execute();
     if (chmodResult.code !== 0) {
       throw new Error(`chmod failed: ${chmodResult.stderr}`);

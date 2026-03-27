@@ -1,33 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 import { check, type Update } from "@tauri-apps/plugin-updater";
-import { getSetting } from "@/features/debt/db";
+import { relaunch } from "@tauri-apps/plugin-process";
 import { Button } from "@/components/ui/button";
-import { Download, X } from "lucide-react";
+import { Download, X, RefreshCw, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+type UpdateState = "available" | "downloading" | "ready" | "error";
+
 export function UpdateChecker() {
-  const [updateAvailable, setUpdateAvailable] = useState(false);
+  const [state, setState] = useState<UpdateState | null>(null);
   const [updateVersion, setUpdateVersion] = useState("");
-  const [isUpdating, setIsUpdating] = useState(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [dismissed, setDismissed] = useState(false);
+  const [progress, setProgress] = useState(0);
   const updateRef = useRef<Update | null>(null);
 
   useEffect(() => {
     async function checkForUpdate() {
       try {
-        // Get GitHub token for private repo access
-        const token = await getSetting("github_token");
-        const headers: Record<string, string> = {};
-        if (token) {
-          headers["Authorization"] = `token ${token}`;
-          headers["Accept"] = "application/octet-stream";
-        }
-
-        const update = await check({ headers });
+        const update = await check();
         if (update) {
           updateRef.current = update;
-          setUpdateAvailable(true);
+          setState("available");
           setUpdateVersion(update.version);
         }
       } catch (err) {
@@ -43,57 +37,109 @@ export function UpdateChecker() {
     const update = updateRef.current;
     if (!update) return;
 
-    setIsUpdating(true);
+    setState("downloading");
     setUpdateError(null);
-    try {
-      // Get token for authenticated download
-      const token = await getSetting("github_token");
-      const headers: Record<string, string> = {};
-      if (token) {
-        headers["Authorization"] = `token ${token}`;
-        headers["Accept"] = "application/octet-stream";
-      }
+    setProgress(0);
 
-      await update.downloadAndInstall((progress) => {
-        // Could add progress bar here in future
-        console.debug("Download progress:", progress);
+    try {
+      let totalBytes = 0;
+      let downloadedBytes = 0;
+
+      await update.downloadAndInstall((event) => {
+        if (event.event === "Started" && event.data.contentLength) {
+          totalBytes = event.data.contentLength;
+        } else if (event.event === "Progress") {
+          downloadedBytes += event.data.chunkLength;
+          if (totalBytes > 0) {
+            setProgress(Math.round((downloadedBytes / totalBytes) * 100));
+          }
+        } else if (event.event === "Finished") {
+          setProgress(100);
+        }
       });
+
+      setState("ready");
     } catch (err) {
       console.error("Update failed:", err);
-      setUpdateError("Update failed. Please try again.");
-      setIsUpdating(false);
+      setUpdateError(err instanceof Error ? err.message : "Update failed");
+      setState("error");
     }
   }
 
+  async function handleRestart() {
+    await relaunch();
+  }
+
+  const show = state !== null && !dismissed;
+
   return (
     <AnimatePresence>
-      {updateAvailable && !dismissed && (
+      {show && (
         <motion.div
           key="update-banner"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          className="fixed top-4 right-4 z-50 flex items-center gap-3 rounded-xl bg-primary/10 border border-primary/20 px-4 py-3 shadow-lg backdrop-blur-sm"
+          className="fixed top-4 right-4 z-50 rounded-xl bg-primary/10 border border-primary/20 px-4 py-3 shadow-lg backdrop-blur-sm space-y-2"
         >
-          <div className="text-sm">
-            <span className="font-medium">v{updateVersion} available</span>
-            {updateError && (
-              <p className="text-xs text-destructive mt-0.5">{updateError}</p>
+          <div className="flex items-center gap-3">
+            <div className="text-sm">
+              {state === "available" && (
+                <span className="font-medium">v{updateVersion} available</span>
+              )}
+              {state === "downloading" && (
+                <span className="font-medium">Downloading v{updateVersion}... {progress}%</span>
+              )}
+              {state === "ready" && (
+                <span className="font-medium text-positive flex items-center gap-1.5">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  v{updateVersion} installed
+                </span>
+              )}
+              {state === "error" && (
+                <div>
+                  <span className="font-medium text-destructive">Update failed</span>
+                  {updateError && <p className="text-[10px] text-destructive/70 mt-0.5 max-w-[200px]">{updateError}</p>}
+                </div>
+              )}
+            </div>
+
+            {state === "available" && (
+              <Button size="sm" onClick={handleUpdate} className="h-7 gap-1.5 text-xs">
+                <Download className="h-3 w-3" />
+                Update
+              </Button>
+            )}
+
+            {state === "ready" && (
+              <Button size="sm" onClick={handleRestart} className="h-7 gap-1.5 text-xs">
+                <RefreshCw className="h-3 w-3" />
+                Restart now
+              </Button>
+            )}
+
+            {state === "error" && (
+              <Button size="sm" variant="outline" onClick={handleUpdate} className="h-7 gap-1.5 text-xs">
+                Retry
+              </Button>
+            )}
+
+            {(state === "available" || state === "error") && (
+              <button onClick={() => setDismissed(true)} className="text-muted-foreground hover:text-foreground">
+                <X className="h-3.5 w-3.5" />
+              </button>
             )}
           </div>
-          <Button
-            size="sm"
-            onClick={handleUpdate}
-            disabled={isUpdating}
-            className="h-7 gap-1.5 text-xs"
-          >
-            <Download className="h-3 w-3" />
-            {isUpdating ? "Updating..." : "Update"}
-          </Button>
-          {!isUpdating && (
-            <button onClick={() => setDismissed(true)} className="text-muted-foreground hover:text-foreground">
-              <X className="h-3.5 w-3.5" />
-            </button>
+
+          {/* Progress bar */}
+          {state === "downloading" && (
+            <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-primary rounded-full"
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.3 }}
+              />
+            </div>
           )}
         </motion.div>
       )}
