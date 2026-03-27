@@ -49,18 +49,28 @@ export function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Only initialise stores that haven't loaded yet to avoid resetting isLoading
-    const promises: Promise<void>[] = [];
-    if (useDebtStore.getState().isLoading) promises.push(initDebt());
-    if (useBudgetStore.getState().isLoading) promises.push(initBudget());
-    if (useHabitStore.getState().isLoading) promises.push(initHabits());
-    if (useGoalStore.getState().isLoading) promises.push(initGoals());
+    async function load() {
+      try {
+        // Only initialise stores that haven't loaded yet
+        const promises: Promise<void>[] = [];
+        if (useDebtStore.getState().isLoading) promises.push(initDebt());
+        if (useBudgetStore.getState().isLoading) promises.push(initBudget());
+        if (useHabitStore.getState().isLoading) promises.push(initHabits());
+        if (useGoalStore.getState().isLoading) promises.push(initGoals());
 
-    Promise.all(promises).then(async () => {
-      const items = await getRecentActivity(8);
-      setActivity(items);
-      setIsLoading(false);
-    });
+        await Promise.allSettled(promises);
+
+        try {
+          const items = await getRecentActivity(8);
+          setActivity(items);
+        } catch {
+          // Activity feed is non-critical
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    load();
   }, [initDebt, initBudget, initHabits, initGoals]);
 
   // Debt summary
