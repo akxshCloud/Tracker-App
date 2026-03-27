@@ -9,6 +9,7 @@ import { BudgetPage } from "@/features/budget/components/BudgetPage";
 import { PaymentHistory } from "@/features/debt/components/PaymentHistory";
 import { SettingsPage } from "@/features/settings/SettingsPage";
 import { HabitsPage } from "@/features/habits/components/HabitsPage";
+import { GoalsPage } from "@/features/goals/components/GoalsPage";
 import { Sidebar } from "@/components/Sidebar";
 import { checkAndNotify } from "@/features/debt/notifications";
 import { UpdateChecker } from "@/components/UpdateChecker";
@@ -65,6 +66,7 @@ function App() {
               {page === "budget" && <BudgetPage />}
               {page === "payments" && <PaymentHistory />}
               {page === "habits" && <HabitsPage />}
+              {page === "goals" && <GoalsPage />}
               {page === "settings" && <SettingsPage />}
             </motion.div>
           </AnimatePresence>

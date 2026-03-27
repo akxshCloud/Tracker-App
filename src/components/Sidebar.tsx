@@ -31,11 +31,11 @@ const mainNav: NavItem[] = [
 
 const lifeNav: NavItem[] = [
   { page: "habits", label: "Habits", Icon: Dumbbell },
+  { page: "goals", label: "Goals", Icon: Target },
 ];
 
 const futureNav: NavItem[] = [
   { label: "Dashboard", Icon: LayoutDashboard, disabled: true },
-  { label: "Goals", Icon: Target, disabled: true },
 ];
 
 const bottomNav: NavItem[] = [
