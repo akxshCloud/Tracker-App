@@ -58,8 +58,7 @@ export async function updateGoal(id: number, data: Partial<GoalFormData>): Promi
 }
 
 export async function deleteGoal(id: number): Promise<void> {
-  await execute("DELETE FROM goal_updates WHERE goal_id = ?", [id]);
-  await execute("DELETE FROM goal_milestones WHERE goal_id = ?", [id]);
+  // FK CASCADE handles goal_milestones and goal_updates automatically
   await execute("DELETE FROM goals WHERE id = ?", [id]);
 }
 

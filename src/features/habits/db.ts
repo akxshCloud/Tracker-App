@@ -53,7 +53,7 @@ export async function updateHabit(id: number, data: Partial<HabitFormData>): Pro
 }
 
 export async function deleteHabit(id: number): Promise<void> {
-  await execute("DELETE FROM habit_completions WHERE habit_id = ?", [id]);
+  // FK CASCADE handles habit_completions automatically
   await execute("DELETE FROM habits WHERE id = ?", [id]);
 }
 

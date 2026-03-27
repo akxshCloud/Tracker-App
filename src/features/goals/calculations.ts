@@ -47,14 +47,14 @@ export function getCountdownLabel(daysRemaining: number): string {
     const overdue = Math.abs(daysRemaining);
     if (overdue === 1) return "1 day overdue";
     if (overdue < 90) return `${overdue} days overdue`;
-    const months = Math.round(overdue / 30);
+    const months = Math.floor(overdue / 30);
     return `${months} month${months !== 1 ? "s" : ""} overdue`;
   }
   if (daysRemaining === 0) return "Due today";
   if (daysRemaining === 1) return "1 day left";
   if (daysRemaining < 90) return `${daysRemaining} days left`;
   if (daysRemaining < 365) {
-    const months = Math.round(daysRemaining / 30);
+    const months = Math.floor(daysRemaining / 30);
     return `${months} month${months !== 1 ? "s" : ""} left`;
   }
   const years = (daysRemaining / 365).toFixed(1);

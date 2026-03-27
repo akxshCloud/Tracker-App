@@ -121,13 +121,13 @@ function countCompletionsInWeek(completedDates: Set<string>, weekStart: Date): n
 
 export function getCompletionRate(
   habits: Habit[],
-  completedDates: Set<string>,
+  completedHabitIds: Set<number>,
   date: string,
 ): { completed: number; total: number; percentage: number } {
   const d = parseLocalDate(date);
   const scheduledHabits = habits.filter((h) => isScheduledDay(h, d));
   const total = scheduledHabits.length;
-  const completed = scheduledHabits.filter((h) => completedDates.has(`${h.id}:${date}`)).length;
+  const completed = scheduledHabits.filter((h) => completedHabitIds.has(h.id)).length;
   const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
   return { completed, total, percentage };
 }

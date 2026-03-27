@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -23,13 +23,13 @@ export function UpdateProgressDialog({ goal, onClose }: UpdateProgressDialogProp
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
 
-  function handleOpen() {
+  useEffect(() => {
     if (goal) {
       setValue(String(goal.current_value));
       setNotes("");
       setError("");
     }
-  }
+  }, [goal]);
 
   async function handleSubmit() {
     if (!goal) return;
@@ -50,10 +50,7 @@ export function UpdateProgressDialog({ goal, onClose }: UpdateProgressDialogProp
   return (
     <Dialog
       open={!!goal}
-      onOpenChange={(open) => {
-        if (open) handleOpen();
-        if (!open) onClose();
-      }}
+      onOpenChange={(open) => !open && onClose()}
     >
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>

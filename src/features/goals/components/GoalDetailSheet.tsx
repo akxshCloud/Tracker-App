@@ -36,7 +36,7 @@ export function GoalDetailSheet({ goal, onClose, onUpdateProgress }: GoalDetailS
     if (goal) {
       loadGoalDetails(goal.id);
     }
-  }, [goal, loadGoalDetails]);
+  }, [goal?.id, loadGoalDetails]);
 
   if (!goal) return null;
 
