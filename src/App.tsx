@@ -15,10 +15,16 @@ import { Sidebar } from "@/components/Sidebar";
 import { checkAndNotify } from "@/features/debt/notifications";
 import { UpdateChecker } from "@/components/UpdateChecker";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useThemeStore } from "@/lib/theme";
 
 function App() {
   const { isLoading, hasCompletedOnboarding, initialize } = useDebtStore();
   const { page } = useRouter();
+  const initTheme = useThemeStore((s) => s.initialize);
+
+  useEffect(() => {
+    initTheme().catch(console.debug);
+  }, [initTheme]);
 
   useEffect(() => {
     initialize().then(() => {

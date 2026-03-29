@@ -11,9 +11,13 @@ import {
   LayoutDashboard,
   Dumbbell,
   Target,
+  Lightbulb,
+  LightbulbOff,
+  Monitor,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ReviewBell } from "@/features/budget/components/ReviewPanel";
+import { useThemeStore } from "@/lib/theme";
 
 interface NavItem {
   page?: Page;
@@ -44,13 +48,32 @@ const bottomNav: NavItem[] = [
 
 export function Sidebar() {
   const { page, navigate } = useRouter();
+  const { mode, cycleMode } = useThemeStore();
+
+  const ThemeIcon = mode === "light" ? Lightbulb : mode === "dark" ? LightbulbOff : Monitor;
+  const themeLabel = mode === "system" ? "Theme: System" : mode === "light" ? "Theme: Light" : "Theme: Dark";
 
   return (
     <aside className="flex h-screen w-[68px] flex-col items-center border-r border-sidebar-border bg-sidebar py-5 gap-1">
       {/* App brand */}
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 mb-4">
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 mb-1">
         <div className="h-5 w-5 rounded-md bg-primary" />
       </div>
+
+      {/* Theme toggle */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            onClick={cycleMode}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-sidebar-foreground/40 hover:text-sidebar-foreground/70 hover:bg-sidebar-accent transition-all duration-200 mb-2"
+          >
+            <ThemeIcon className="h-4 w-4" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="right" sideOffset={12} className="text-xs font-medium">
+          {themeLabel}
+        </TooltipContent>
+      </Tooltip>
 
       {/* Divider */}
       <div className="w-8 h-px bg-sidebar-border mb-2" />
