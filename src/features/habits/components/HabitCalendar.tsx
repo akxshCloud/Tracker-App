@@ -73,7 +73,7 @@ export function HabitCalendar() {
               className="h-2.5 w-2.5 rounded-[3px]"
               style={{
                 backgroundColor: level === 0
-                  ? "oklch(0.18 0.01 260)"
+                  ? "var(--th-dot-empty)"
                   : filterColor,
                 opacity: level === 0 ? 1 : LEVEL_OPACITY[level],
               }}
@@ -125,7 +125,7 @@ export function HabitCalendar() {
                         className="h-[11px] w-[11px] rounded-[3px] cursor-pointer transition-all hover:ring-1 hover:ring-white/20"
                         style={{
                           backgroundColor: day.level === 0
-                            ? "oklch(0.18 0.01 260)"
+                            ? "var(--th-dot-empty)"
                             : filterColor,
                           opacity: day.level === 0 ? 1 : LEVEL_OPACITY[day.level],
                         }}

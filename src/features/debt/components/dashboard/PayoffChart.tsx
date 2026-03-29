@@ -56,10 +56,10 @@ export function PayoffChart({ comparison }: PayoffChartProps) {
                   <stop offset="100%" stopColor="oklch(0.68 0.16 250)" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.24 0.01 260)" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--th-chart-grid)" vertical={false} />
               <XAxis
                 dataKey="month"
-                stroke="oklch(0.4 0.01 260)"
+                stroke="var(--th-muted-foreground)"
                 fontSize={10}
                 tickLine={false}
                 axisLine={false}
@@ -70,7 +70,7 @@ export function PayoffChart({ comparison }: PayoffChartProps) {
                 }}
               />
               <YAxis
-                stroke="oklch(0.4 0.01 260)"
+                stroke="var(--th-muted-foreground)"
                 fontSize={10}
                 tickLine={false}
                 axisLine={false}
@@ -80,12 +80,11 @@ export function PayoffChart({ comparison }: PayoffChartProps) {
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "oklch(0.18 0.015 255)",
-                  border: "1px solid oklch(0.28 0.015 255)",
-                  borderRadius: "12px",
+                  backgroundColor: "var(--th-chart-tooltip-bg)",
+                  border: "1px solid var(--th-chart-tooltip-border)",
+                  borderRadius: "8px",
                   fontSize: "12px",
                   padding: "8px 12px",
-                  boxShadow: "0 8px 32px oklch(0 0 0 / 0.4)",
                 }}
                 formatter={(value: unknown) => [formatCurrency(Number(value)), "Balance"]}
                 labelFormatter={(label: unknown) => {
@@ -106,8 +105,8 @@ export function PayoffChart({ comparison }: PayoffChartProps) {
                 dot={false}
                 activeDot={{
                   r: 4,
-                  fill: "oklch(0.68 0.16 250)",
-                  stroke: "oklch(0.18 0.015 255)",
+                  fill: "#2E7CF6",
+                  stroke: "var(--th-card)",
                   strokeWidth: 2,
                 }}
               />

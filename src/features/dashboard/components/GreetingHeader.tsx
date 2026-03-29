@@ -19,14 +19,26 @@ function getFormattedDate(): string {
   }).format(new Date());
 }
 
-export function GreetingHeader(_props: GreetingHeaderProps) {
+export function GreetingHeader({ habitsRemaining, habitsTotal }: GreetingHeaderProps) {
   const greeting = getGreeting();
   const dateStr = getFormattedDate();
+
+  let nudge: string | null = null;
+  if (habitsTotal > 0) {
+    if (habitsRemaining > 0) {
+      nudge = `${habitsRemaining} habit${habitsRemaining !== 1 ? "s" : ""} left today`;
+    } else {
+      nudge = "All habits done today";
+    }
+  }
 
   return (
     <div>
       <h1 className="text-2xl font-semibold tracking-tight">{greeting}</h1>
-      <p className="text-sm text-muted-foreground mt-0.5">{dateStr}</p>
+      <p className="text-sm text-muted-foreground mt-0.5">
+        {dateStr}
+        {nudge && <span className="ml-2 text-primary">· {nudge}</span>}
+      </p>
     </div>
   );
 }

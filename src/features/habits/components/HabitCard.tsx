@@ -158,7 +158,7 @@ export function HabitCard({
                 cy="16"
                 r="13"
                 fill="none"
-                stroke={isCompleted ? color : "oklch(0.25 0.01 260)"}
+                stroke={isCompleted ? color : "var(--th-ring-track)"}
                 strokeWidth="2"
                 className="transition-colors duration-300"
               />
