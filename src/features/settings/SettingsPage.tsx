@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Settings, Download, Upload, RotateCcw, CheckCircle2, AlertTriangle, Bell, BellOff } from "lucide-react";
+import { Download, Upload, RotateCcw, CheckCircle2, AlertTriangle, Bell, BellOff } from "lucide-react";
 import { useDebtStore } from "@/features/debt/store";
 import { exportAllData, importAllData } from "./data-export";
 import { installLaunchAgent, uninstallLaunchAgent, isLaunchAgentInstalled } from "./launch-agent";
@@ -89,11 +89,8 @@ export function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-          <Settings className="h-8 w-8" />
-          Settings
-        </h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
+        <p className="text-sm text-muted-foreground mt-1">
           Manage your data and preferences.
         </p>
       </div>

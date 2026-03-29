@@ -137,13 +137,8 @@ export function HabitsPage() {
     <motion.div className="space-y-8" variants={stagger} initial="initial" animate="animate">
       {/* Header */}
       <motion.div variants={fadeIn} className="flex items-end justify-between">
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-muted-foreground tracking-wide uppercase">
-            Habits
-          </p>
-          <h1 className="text-4xl font-bold tracking-tight">
-            Build better <span className="text-gradient">habits</span>
-          </h1>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Habits</h1>
         </div>
         <div className="flex items-center gap-2">
           <AddHabitDialog />

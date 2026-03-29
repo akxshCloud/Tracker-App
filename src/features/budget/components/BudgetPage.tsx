@@ -128,10 +128,7 @@ export function BudgetPage() {
       {/* Header */}
       <motion.div variants={fadeIn} className="flex items-end justify-between">
         <div className="space-y-1">
-          <p className="text-sm font-medium text-muted-foreground tracking-wide uppercase">Budget</p>
-          <h1 className="text-4xl font-bold tracking-tight">
-            Money <span className="text-gradient">planner</span>
-          </h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Budget</h1>
         </div>
         <div className="flex items-center gap-2">
           {isConnected ? (

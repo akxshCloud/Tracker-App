@@ -46,12 +46,7 @@ export function PaymentHistory() {
       animate="animate"
     >
       <motion.div variants={fadeIn}>
-        <p className="text-sm font-medium text-muted-foreground tracking-wide uppercase">
-          Payments
-        </p>
-        <h1 className="text-4xl font-bold tracking-tight">
-          Payment <span className="text-gradient">History</span>
-        </h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Payment History</h1>
       </motion.div>
 
       {/* Summary */}

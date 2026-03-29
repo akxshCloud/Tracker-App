@@ -57,13 +57,8 @@ export function GoalsPage() {
     <motion.div className="space-y-8" variants={stagger} initial="initial" animate="animate">
       {/* Header */}
       <motion.div variants={fadeIn} className="flex items-end justify-between">
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-muted-foreground tracking-wide uppercase">
-            Goals
-          </p>
-          <h1 className="text-4xl font-bold tracking-tight">
-            Track your <span className="text-gradient">goals</span>
-          </h1>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Goals</h1>
         </div>
         <div className="flex items-center gap-2">
           <AddGoalDialog />

@@ -45,13 +45,8 @@ export function PaymentSchedule() {
       animate="animate"
     >
       <motion.div variants={fadeIn} className="flex items-end justify-between">
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-muted-foreground tracking-wide uppercase">
-            Payment Plan
-          </p>
-          <h1 className="text-4xl font-bold tracking-tight">
-            Your <span className="text-gradient">schedule</span>
-          </h1>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Payment Plan</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Exactly what to pay, to whom, each month.
           </p>
