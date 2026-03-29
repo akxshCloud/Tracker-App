@@ -19,7 +19,7 @@ export function OverviewCards({ summary, monthlyBudget, comparison }: OverviewCa
   return (
     <div className="grid grid-cols-4 gap-4">
       {/* Hero — Total Debt */}
-      <div className="col-span-2 card-hero rounded-2xl p-6 space-y-3">
+      <div className="col-span-2 card-hero rounded-lg p-6 space-y-3">
         <div className="flex items-center gap-2 text-primary/70">
           <Wallet className="h-4 w-4" />
           <span className="text-xs font-semibold uppercase tracking-widest">Total Remaining</span>

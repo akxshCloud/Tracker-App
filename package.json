@@ -1,5 +1,5 @@
 {
-  "name": "tracker-app",
+  "name": "pulse",
   "private": true,
   "version": "0.6.2",
   "type": "module",
@@ -13,6 +13,7 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
+    "@fontsource/inter": "^5.2.8",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-fs": "^2.4.5",
     "@tauri-apps/plugin-notification": "^2.3.3",

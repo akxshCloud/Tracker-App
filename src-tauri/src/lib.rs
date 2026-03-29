@@ -149,7 +149,7 @@ async fn wait_for_oauth_callback(port: u16, timeout_secs: u64) -> Result<OAuthCa
 
             // Send response HTML
             let body = if code.is_some() {
-                r#"<html><body style="background:#0a0a0f;color:white;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h1>Connected!</h1><p>You can close this tab and return to Life Tracker.</p></div></body></html>"#
+                r#"<html><body style="background:#0a0a0f;color:white;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h1>Connected!</h1><p>You can close this tab and return to Pulse.</p></div></body></html>"#
             } else {
                 r#"<html><body style="background:#0a0a0f;color:white;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h1>Error</h1><p>Bank connection failed. Please try again.</p></div></body></html>"#
             };

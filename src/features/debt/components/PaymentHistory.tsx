@@ -46,21 +46,16 @@ export function PaymentHistory() {
       animate="animate"
     >
       <motion.div variants={fadeIn}>
-        <p className="text-sm font-medium text-muted-foreground tracking-wide uppercase">
-          Payments
-        </p>
-        <h1 className="text-4xl font-bold tracking-tight">
-          Payment <span className="text-gradient">History</span>
-        </h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Payment History</h1>
       </motion.div>
 
       {/* Summary */}
       <motion.div variants={fadeIn} className="grid grid-cols-2 gap-4">
-        <div className="card-hero rounded-2xl p-6 space-y-1">
+        <div className="card-hero rounded-lg p-6 space-y-1">
           <p className="text-[10px] text-primary/60 uppercase tracking-widest font-semibold">Total Paid</p>
           <p className="text-3xl font-bold font-mono tabular-nums">{formatCurrency(totalPaid)}</p>
         </div>
-        <div className="card-elevated rounded-2xl p-6 space-y-1">
+        <div className="card-elevated rounded-lg p-6 space-y-1">
           <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">Payments Made</p>
           <p className="text-3xl font-bold font-mono tabular-nums">{payments.length}</p>
         </div>
@@ -68,7 +63,7 @@ export function PaymentHistory() {
 
       {/* Payment list */}
       {grouped.length === 0 ? (
-        <motion.div variants={fadeIn} className="card-elevated rounded-2xl py-16 text-center">
+        <motion.div variants={fadeIn} className="card-elevated rounded-lg py-16 text-center">
           <Receipt className="h-10 w-10 text-muted-foreground/30 mx-auto mb-4" />
           <p className="text-muted-foreground font-medium">No payments yet</p>
           <p className="text-sm text-muted-foreground/60 mt-1">
@@ -85,7 +80,7 @@ export function PaymentHistory() {
           const monthTotal = monthPayments.reduce((sum, p) => sum + p.amount, 0);
 
           return (
-            <motion.div key={monthKey} variants={fadeIn} className="card-elevated rounded-2xl overflow-hidden">
+            <motion.div key={monthKey} variants={fadeIn} className="card-elevated rounded-lg overflow-hidden">
               <div className="flex items-center justify-between px-6 py-4 border-b border-border/30">
                 <span className="text-sm font-semibold">{monthLabel}</span>
                 <span className="text-sm font-mono tabular-nums text-muted-foreground">

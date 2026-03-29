@@ -26,21 +26,19 @@ export function GreetingHeader({ habitsRemaining, habitsTotal }: GreetingHeaderP
   let nudge: string | null = null;
   if (habitsTotal > 0) {
     if (habitsRemaining > 0) {
-      nudge = `You have ${habitsRemaining} habit${habitsRemaining !== 1 ? "s" : ""} left today`;
+      nudge = `${habitsRemaining} habit${habitsRemaining !== 1 ? "s" : ""} left today`;
     } else {
-      nudge = "All habits done today!";
+      nudge = "All habits done today";
     }
   }
 
   return (
-    <div className="space-y-1">
-      <h1 className="text-3xl font-bold tracking-tight">
-        {greeting}
-      </h1>
-      <p className="text-sm text-muted-foreground">{dateStr}</p>
-      {nudge && (
-        <p className="text-xs text-primary/70 pt-1">{nudge}</p>
-      )}
+    <div>
+      <h1 className="text-2xl font-semibold tracking-tight">{greeting}</h1>
+      <p className="text-sm text-muted-foreground mt-0.5">
+        {dateStr}
+        {nudge && <span className="ml-2 text-primary">· {nudge}</span>}
+      </p>
     </div>
   );
 }

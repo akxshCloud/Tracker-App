@@ -40,7 +40,7 @@ export function DebtList() {
 
   return (
     <>
-      <div className="card-elevated rounded-2xl p-6 space-y-5">
+      <div className="card-elevated rounded-lg p-6 space-y-5">
         <div>
           <h3 className="text-sm font-semibold">Your Debts</h3>
           <p className="text-xs text-muted-foreground">{debts.length} active {debts.length === 1 ? "debt" : "debts"}</p>

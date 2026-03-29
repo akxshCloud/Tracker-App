@@ -22,9 +22,10 @@ export function ReviewBell() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <button className="relative flex h-10 w-10 items-center justify-center rounded-xl text-sidebar-foreground/40 hover:text-sidebar-foreground/70 hover:bg-sidebar-accent transition-all">
-          <Bell className="h-[18px] w-[18px]" />
-          <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-white px-1">
+        <button className="relative flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
+          <Bell className="h-4 w-4 shrink-0" />
+          <span>Review</span>
+          <span className="ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-white px-1">
             {uncategorisedCount > 99 ? "99+" : uncategorisedCount}
           </span>
         </button>

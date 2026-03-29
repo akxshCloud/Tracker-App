@@ -46,8 +46,8 @@ export function OnboardingWizard() {
               animate={{
                 width: i === currentIndex ? 32 : 16,
                 backgroundColor: i <= currentIndex
-                  ? "oklch(0.68 0.16 250)"
-                  : "oklch(0.22 0.01 260)",
+                  ? "#2E7CF6"
+                  : "var(--th-dot-empty)",
               }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
             />

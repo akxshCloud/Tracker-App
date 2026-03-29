@@ -40,13 +40,8 @@ export function DebtDashboard() {
     >
       {/* Header */}
       <motion.div variants={fadeIn} className="flex items-end justify-between">
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-muted-foreground tracking-wide uppercase">
-            Debt Tracker
-          </p>
-          <h1 className="text-4xl font-bold tracking-tight">
-            Your path to <span className="text-gradient">debt-free</span>
-          </h1>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Debt Tracker</h1>
         </div>
         <div className="flex items-center gap-2">
           <AddDebtDialog />

@@ -137,13 +137,8 @@ export function HabitsPage() {
     <motion.div className="space-y-8" variants={stagger} initial="initial" animate="animate">
       {/* Header */}
       <motion.div variants={fadeIn} className="flex items-end justify-between">
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-muted-foreground tracking-wide uppercase">
-            Habits
-          </p>
-          <h1 className="text-4xl font-bold tracking-tight">
-            Build better <span className="text-gradient">habits</span>
-          </h1>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Habits</h1>
         </div>
         <div className="flex items-center gap-2">
           <AddHabitDialog />
@@ -192,7 +187,7 @@ export function HabitsPage() {
           {habits.length === 0 ? (
             <motion.div
               variants={fadeIn}
-              className="card-elevated rounded-2xl p-12 text-center"
+              className="card-elevated rounded-lg p-12 text-center"
             >
               <p className="text-muted-foreground">No habits yet. Add your first habit to get started.</p>
             </motion.div>
@@ -201,7 +196,7 @@ export function HabitsPage() {
               {/* Summary ring + habit list */}
               <motion.div variants={fadeIn} className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 {/* Progress ring */}
-                <div className="card-hero rounded-2xl p-6 flex flex-col items-center justify-center gap-3">
+                <div className="card-hero rounded-lg p-6 flex flex-col items-center justify-center gap-3">
                   <ProgressRing progress={percentage} size={100} strokeWidth={7}>
                     <div className="text-center">
                       <p className="text-2xl font-bold font-mono tabular-nums">

@@ -13,8 +13,8 @@ export function ProgressRing({
   progress,
   size = 120,
   strokeWidth = 8,
-  color = "oklch(0.68 0.16 250)",
-  trackColor = "oklch(0.2 0.01 260)",
+  color = "#2E7CF6",
+  trackColor = "var(--th-ring-track)",
   children,
 }: ProgressRingProps) {
   const radius = (size - strokeWidth) / 2;

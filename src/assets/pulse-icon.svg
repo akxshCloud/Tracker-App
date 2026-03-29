@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <!-- Background ring (faint) -->
+  <circle cx="60" cy="60" r="54" fill="none" stroke="#2E7CF6" stroke-width="5" opacity="0.15"/>
+  <!-- Partial arc (progress ring feel) -->
+  <circle cx="60" cy="60" r="54" fill="none" stroke="#2E7CF6" stroke-width="5" stroke-dasharray="160 340" stroke-dashoffset="-80" stroke-linecap="round"/>
+  <!-- Pulse/heartbeat line (bold) -->
+  <polyline points="16,60 32,60 42,30 52,90 62,42 72,60 104,60" fill="none" stroke="#2E7CF6" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

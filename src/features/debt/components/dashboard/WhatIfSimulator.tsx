@@ -39,7 +39,7 @@ export function WhatIfSimulator() {
   const hasExtra = extraPayment > 0;
 
   return (
-    <div className="card-elevated rounded-2xl p-6 h-full flex flex-col justify-between gap-6">
+    <div className="card-elevated rounded-lg p-6 h-full flex flex-col justify-between gap-6">
       {/* Header */}
       <div className="flex items-center gap-2">
         <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">

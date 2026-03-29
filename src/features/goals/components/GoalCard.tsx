@@ -43,7 +43,7 @@ export function GoalCard({ goal, milestones, onEdit, onUpdateProgress, onViewDet
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       className={cn(
-        "card-elevated rounded-2xl p-6 flex flex-col gap-4 cursor-pointer transition-all hover:border-border/30",
+        "card-elevated rounded-lg p-6 flex flex-col gap-4 cursor-pointer transition-all hover:border-border/30",
         complete && "ring-1",
       )}
       style={complete ? { "--tw-ring-color": "oklch(0.65 0.18 155)" } as React.CSSProperties : undefined}
