@@ -27,13 +27,18 @@ function App() {
   }, [initTheme]);
 
   useEffect(() => {
-    initialize().then(() => {
-      // Check for payment reminders after data loads
-      const { debts } = useDebtStore.getState();
-      if (debts.length > 0) {
-        checkAndNotify(debts).catch(console.debug);
-      }
-    });
+    initialize()
+      .then(() => {
+        const { debts } = useDebtStore.getState();
+        if (debts.length > 0) {
+          checkAndNotify(debts).catch(console.debug);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to initialize:", err);
+        // Ensure we exit loading state even on error
+        useDebtStore.setState({ isLoading: false });
+      });
   }, [initialize]);
 
   if (isLoading) {

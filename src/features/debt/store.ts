@@ -39,16 +39,21 @@ export const useDebtStore = create<DebtStore>((set, get) => ({
 
   initialize: async () => {
     set({ isLoading: true });
-    const onboarded = await db.hasCompletedOnboarding();
-    const budgetStr = await db.getSetting("monthly_budget");
-    const budget = budgetStr ? parseFloat(budgetStr) : 0;
+    try {
+      const onboarded = await db.hasCompletedOnboarding();
+      const budgetStr = await db.getSetting("monthly_budget");
+      const budget = budgetStr ? parseFloat(budgetStr) : 0;
 
-    if (onboarded) {
-      const debts = await db.getAllDebts();
-      const payments = await db.getAllPayments();
-      set({ debts, payments, monthlyBudget: budget, hasCompletedOnboarding: true, isLoading: false });
-    } else {
-      set({ hasCompletedOnboarding: false, monthlyBudget: budget, isLoading: false });
+      if (onboarded) {
+        const debts = await db.getAllDebts();
+        const payments = await db.getAllPayments();
+        set({ debts, payments, monthlyBudget: budget, hasCompletedOnboarding: true, isLoading: false });
+      } else {
+        set({ hasCompletedOnboarding: false, monthlyBudget: budget, isLoading: false });
+      }
+    } catch (err) {
+      console.error("Debt store init failed:", err);
+      set({ isLoading: false });
     }
   },
 
