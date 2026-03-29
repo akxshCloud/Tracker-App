@@ -59,7 +59,7 @@ function App() {
       <UpdateChecker />
       <Sidebar />
       <ScrollArea className="flex-1">
-        <main className="mx-auto max-w-6xl p-8">
+        <main className="mx-auto max-w-[960px] px-10 py-8">
           <AnimatePresence mode="wait">
             <motion.div
               key={page}
