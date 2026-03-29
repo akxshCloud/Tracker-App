@@ -82,7 +82,7 @@ export function GoalsPage() {
 
       {/* Goals grid */}
       {filteredGoals.length === 0 ? (
-        <motion.div variants={fadeIn} className="card-elevated rounded-2xl p-12 text-center">
+        <motion.div variants={fadeIn} className="card-elevated rounded-lg p-12 text-center">
           <p className="text-muted-foreground">
             {filter === "active" && goals.length > 0
               ? "All goals completed! Add a new goal to keep going."

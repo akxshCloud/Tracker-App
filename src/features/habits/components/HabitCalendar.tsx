@@ -62,7 +62,7 @@ export function HabitCalendar() {
   });
 
   return (
-    <div className="card-elevated rounded-2xl p-6 space-y-4">
+    <div className="card-elevated rounded-lg p-6 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold">Activity</h3>
         <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">

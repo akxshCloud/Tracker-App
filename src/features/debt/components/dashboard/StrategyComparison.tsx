@@ -10,7 +10,7 @@ export function StrategyComparison({ comparison }: StrategyComparisonProps) {
   const { avalanche, snowball, interestSaved } = comparison;
 
   return (
-    <div className="card-elevated rounded-2xl p-6 space-y-5 h-full flex flex-col">
+    <div className="card-elevated rounded-lg p-6 space-y-5 h-full flex flex-col">
       <div>
         <h3 className="text-sm font-semibold">Strategy Comparison</h3>
         <p className="text-xs text-muted-foreground">Avalanche vs Snowball</p>

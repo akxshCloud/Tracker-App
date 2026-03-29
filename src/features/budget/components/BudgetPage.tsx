@@ -162,7 +162,7 @@ export function BudgetPage() {
 
       {!isConnected ? (
         /* Not connected state */
-        <motion.div variants={fadeIn} className="card-elevated rounded-2xl py-20 text-center space-y-4">
+        <motion.div variants={fadeIn} className="card-elevated rounded-lg py-20 text-center space-y-4">
           <Landmark className="h-12 w-12 text-muted-foreground/30 mx-auto" />
           <div>
             <p className="font-semibold text-lg">Connect your bank account</p>
@@ -193,15 +193,15 @@ export function BudgetPage() {
 
           {/* Summary cards */}
           <motion.div variants={fadeIn} className="grid grid-cols-3 gap-4">
-            <div className="card-hero rounded-2xl p-5 space-y-1">
+            <div className="card-hero rounded-lg p-5 space-y-1">
               <p className="text-[10px] text-primary/60 uppercase tracking-widest font-semibold">Income</p>
               <p className="text-2xl font-bold font-mono tabular-nums text-positive">{formatCurrency(totalIncome)}</p>
             </div>
-            <div className="card-elevated rounded-2xl p-5 space-y-1">
+            <div className="card-elevated rounded-lg p-5 space-y-1">
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">Spending</p>
               <p className="text-2xl font-bold font-mono tabular-nums">{formatCurrency(totalSpending)}</p>
             </div>
-            <div className="card-elevated rounded-2xl p-5 space-y-1">
+            <div className="card-elevated rounded-lg p-5 space-y-1">
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">Net</p>
               <p className={`text-2xl font-bold font-mono tabular-nums ${netFlow >= 0 ? "text-positive" : "text-destructive"}`}>
                 {netFlow >= 0 ? "+" : ""}{formatCurrency(netFlow)}
@@ -226,7 +226,7 @@ export function BudgetPage() {
           )}
 
           {/* Category breakdown with budget limits */}
-          <motion.div variants={fadeIn} className="card-elevated rounded-2xl p-6 space-y-4">
+          <motion.div variants={fadeIn} className="card-elevated rounded-lg p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold">Spending by Category</h3>
               <p className="text-[10px] text-muted-foreground">Click a bar to set a budget limit</p>
@@ -344,7 +344,7 @@ export function BudgetPage() {
           </motion.div>
 
           {/* Transaction list */}
-          <motion.div variants={fadeIn} className="card-elevated rounded-2xl overflow-hidden">
+          <motion.div variants={fadeIn} className="card-elevated rounded-lg overflow-hidden">
             <div className="px-6 py-4 border-b border-border/20">
               <h3 className="text-sm font-semibold">Transactions</h3>
               <p className="text-xs text-muted-foreground">{transactions.length} transactions this month</p>

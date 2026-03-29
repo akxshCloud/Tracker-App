@@ -28,7 +28,7 @@ export function PayoffChart({ comparison }: PayoffChartProps) {
   }));
 
   return (
-    <div className="card-elevated rounded-2xl p-6 space-y-4 h-full flex flex-col">
+    <div className="card-elevated rounded-lg p-6 space-y-4 h-full flex flex-col">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-sm font-semibold">Payoff Timeline</h3>

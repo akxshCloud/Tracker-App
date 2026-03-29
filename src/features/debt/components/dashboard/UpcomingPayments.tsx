@@ -15,7 +15,7 @@ export function UpcomingPayments() {
   if (upcoming.length === 0) {
     if (!hasDebtsWithoutDueDay) return null;
     return (
-      <div className="card-elevated rounded-2xl p-5">
+      <div className="card-elevated rounded-lg p-5">
         <div className="flex items-center gap-2">
           <div className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center">
             <CalendarClock className="h-3.5 w-3.5 text-muted-foreground" />
@@ -34,7 +34,7 @@ export function UpcomingPayments() {
   const hasUrgent = upcoming.some((p) => p.status === "overdue" || p.status === "due-today" || p.status === "due-soon");
 
   return (
-    <div className={`rounded-2xl p-5 space-y-4 ${hasUrgent ? "card-hero" : "card-elevated"}`}>
+    <div className={`rounded-lg p-5 space-y-4 ${hasUrgent ? "card-hero" : "card-elevated"}`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">

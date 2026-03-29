@@ -187,7 +187,7 @@ export function HabitsPage() {
           {habits.length === 0 ? (
             <motion.div
               variants={fadeIn}
-              className="card-elevated rounded-2xl p-12 text-center"
+              className="card-elevated rounded-lg p-12 text-center"
             >
               <p className="text-muted-foreground">No habits yet. Add your first habit to get started.</p>
             </motion.div>
@@ -196,7 +196,7 @@ export function HabitsPage() {
               {/* Summary ring + habit list */}
               <motion.div variants={fadeIn} className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 {/* Progress ring */}
-                <div className="card-hero rounded-2xl p-6 flex flex-col items-center justify-center gap-3">
+                <div className="card-hero rounded-lg p-6 flex flex-col items-center justify-center gap-3">
                   <ProgressRing progress={percentage} size={100} strokeWidth={7}>
                     <div className="text-center">
                       <p className="text-2xl font-bold font-mono tabular-nums">

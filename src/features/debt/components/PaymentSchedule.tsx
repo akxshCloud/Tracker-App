@@ -60,7 +60,7 @@ export function PaymentSchedule() {
       </motion.div>
 
       {/* Summary bar */}
-      <motion.div variants={fadeIn} className="card-hero rounded-2xl p-5 flex items-center justify-between">
+      <motion.div variants={fadeIn} className="card-hero rounded-lg p-5 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <div>
             <p className="text-[10px] text-primary/60 uppercase tracking-widest font-semibold">Monthly budget</p>
@@ -81,7 +81,7 @@ export function PaymentSchedule() {
 
       {/* Budget warning */}
       {monthlyBudget < minBudget && (
-        <motion.div variants={fadeIn} className="flex items-start gap-3 rounded-2xl bg-destructive/5 border border-destructive/15 p-5">
+        <motion.div variants={fadeIn} className="flex items-start gap-3 rounded-lg bg-destructive/5 border border-destructive/15 p-5">
           <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-semibold text-destructive">Budget below minimum payments</p>
@@ -95,7 +95,7 @@ export function PaymentSchedule() {
 
       {/* Monthly breakdown */}
       {visibleMonths.length === 0 ? (
-        <motion.div variants={fadeIn} className="card-elevated rounded-2xl py-16 text-center">
+        <motion.div variants={fadeIn} className="card-elevated rounded-lg py-16 text-center">
           <CheckCircle2 className="h-10 w-10 text-positive/30 mx-auto mb-4" />
           <p className="text-muted-foreground font-medium">You're debt free!</p>
         </motion.div>
@@ -114,7 +114,7 @@ export function PaymentSchedule() {
               <motion.div
                 key={month.date}
                 variants={fadeIn}
-                className={`rounded-2xl overflow-hidden ${isCurrentMonth ? "card-hero" : "card-elevated"}`}
+                className={`rounded-lg overflow-hidden ${isCurrentMonth ? "card-hero" : "card-elevated"}`}
               >
                 {/* Month header */}
                 <div className="flex items-center justify-between px-5 py-3.5 border-b border-border/20">

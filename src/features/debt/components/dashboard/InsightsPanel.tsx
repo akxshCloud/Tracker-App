@@ -39,7 +39,7 @@ export function InsightsPanel() {
   const yearlyInterestBurn = summary.monthlyInterestAccruing * 12;
 
   return (
-    <div className="card-elevated rounded-2xl p-6 space-y-5 h-full flex flex-col">
+    <div className="card-elevated rounded-lg p-6 space-y-5 h-full flex flex-col">
       <div className="flex items-center gap-2">
         <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">
           <Target className="h-3.5 w-3.5 text-primary" />
