@@ -2,7 +2,7 @@ import { writeTextFile, exists, remove, mkdir } from "@tauri-apps/plugin-fs";
 import { appDataDir, homeDir } from "@tauri-apps/api/path";
 import { Command } from "@tauri-apps/plugin-shell";
 
-const AGENT_LABEL = "com.akash.life-tracker.payment-reminders";
+const AGENT_LABEL = "com.akash.pulse.payment-reminders";
 const PLIST_FILENAME = `${AGENT_LABEL}.plist`;
 const SCRIPT_NAME = "check-payments.sh";
 
@@ -36,7 +36,7 @@ function generatePlist(scriptPath: string): string {
         <integer>0</integer>
     </dict>
     <key>StandardErrorPath</key>
-    <string>/tmp/life-tracker-notify.err</string>
+    <string>/tmp/pulse-notify.err</string>
 </dict>
 </plist>`;
 }
@@ -44,9 +44,9 @@ function generatePlist(scriptPath: string): string {
 // The script sanitises debt names to prevent shell injection via osascript.
 // Uses proper calendar arithmetic for month boundaries.
 const SCRIPT_CONTENT = `#!/bin/bash
-# Life Tracker — Background Payment Reminder
-DB_PATH="$HOME/Library/Application Support/com.akash.life-tracker/tracker.db"
-STATE_FILE="$HOME/Library/Application Support/com.akash.life-tracker/.last_bg_notify"
+# Pulse — Background Payment Reminder
+DB_PATH="$HOME/Library/Application Support/com.akash.pulse/tracker.db"
+STATE_FILE="$HOME/Library/Application Support/com.akash.pulse/.last_bg_notify"
 
 if [ ! -f "$DB_PATH" ]; then exit 0; fi
 
